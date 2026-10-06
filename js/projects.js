@@ -252,6 +252,7 @@
     cardToClose.removeAttribute("aria-labelledby");
     cardToClose.removeAttribute("tabindex");
     cardToClose.querySelector(".project__open").setAttribute("aria-expanded", "false");
+    cardToClose.querySelector(".project__open").disabled = false;
     if (focusTarget) {
       focusTarget.setAttribute("aria-expanded", "false");
     }
@@ -280,7 +281,9 @@
     card.setAttribute("aria-modal", "true");
     card.setAttribute("aria-labelledby", card.querySelector(".project__heading").id);
     card.tabIndex = -1;
-    card.querySelector(".project__open").setAttribute("aria-expanded", "true");
+    const projectButton = card.querySelector(".project__open");
+    projectButton.setAttribute("aria-expanded", "true");
+    projectButton.disabled = true;
     trigger.setAttribute("aria-expanded", "true");
     setProjectBackgroundInert(card, true);
     backdrop.hidden = false;
