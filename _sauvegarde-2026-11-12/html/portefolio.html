@@ -1,0 +1,1140 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Découvrez le portfolio de Hakim ELKHIA : communication visuelle, design graphique, photographie et création web."
+    />
+    <meta name="theme-color" content="#0a0907" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:site_name" content="Hakim ELKHIA — Portfolio" />
+    <meta property="og:title" content="Hakim ELKHIA — Portfolio créatif" />
+    <meta
+      property="og:description"
+      content="Communication visuelle, design graphique, photographie et création web."
+    />
+    <meta property="og:image" content="../assets/rock%20en%20seine1.png" />
+    <meta
+      property="og:image:alt"
+      content="Maquettes d’affiches pour le projet Rock en Seine."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>Hakim ELKHIA — Portfolio créatif</title>
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0907'/%3E%3Ccircle cx='32' cy='32' r='25' fill='none' stroke='%23d6b87a' stroke-width='2'/%3E%3Ctext x='32' y='41' text-anchor='middle' font-family='Georgia,serif' font-style='italic' font-size='26' fill='%23d6b87a'%3EHE%3C/text%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      try {
+        if (
+          !sessionStorage.getItem("hakim-intro") &&
+          !matchMedia("(prefers-reduced-motion: reduce)").matches
+        ) {
+          document.documentElement.classList.add("js-loading");
+        }
+      } catch (error) {}
+    </script>
+    <link rel="stylesheet" href="../css/portefolio.css" />
+    <script defer src="../js/projects.js"></script>
+    <script defer src="../js/theme.js"></script>
+    <script defer src="../js/site.js"></script>
+    <script defer src="../js/pluie-or.js"></script>
+    <script defer src="../js/lampe-torche.js"></script>
+  </head>
+  <body>
+    <a class="sr-only" href="#contenu">Aller au contenu</a>
+
+    <!-- Intro d'ouverture : une alvéole se dessine, puis on zoome dedans. -->
+    <div class="loader" aria-hidden="true">
+      <svg class="loader__svg" viewBox="0 0 200 200">
+        <circle
+          class="loader__ring"
+          style="--i: 0"
+          cx="100"
+          cy="100"
+          r="82"
+          pathLength="1"
+        />
+        <circle
+          class="loader__ring"
+          style="--i: 1"
+          cx="100"
+          cy="100"
+          r="68"
+          pathLength="1"
+        />
+        <text class="loader__mono" x="100" y="118" text-anchor="middle">
+          HE
+        </text>
+      </svg>
+      <p class="loader__count">000</p>
+      <p class="loader__label">Hakim Elkhia · Portfolio</p>
+    </div>
+
+    <!-- Fond animé : la ruche (dessinée par site.js) et un léger grain. -->
+    <canvas id="hive" aria-hidden="true"></canvas>
+    <div class="grain" aria-hidden="true"></div>
+    <div class="scroll-progress" aria-hidden="true"></div>
+    <div class="cursor" aria-hidden="true"><span></span></div>
+
+    <header class="topbar">
+      <a
+        class="topbar__brand"
+        href="#accueil"
+        aria-label="Retour en haut de la page"
+      >
+        <svg viewBox="0 0 32 32" aria-hidden="true">
+          <circle
+            cx="16"
+            cy="16"
+            r="14.5"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.1"
+          />
+          <text x="16" y="21.2" text-anchor="middle">HE</text>
+        </svg>
+        <span>Hakim Elkhia</span>
+      </a>
+      <nav class="topbar__links" aria-label="Navigation principale">
+        <a href="#profil">Profil</a>
+        <a href="#projets">Projets</a>
+        <a href="#competences">Compétences</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <button
+        class="theme-toggle"
+        type="button"
+        aria-label="Activer le mode clair"
+        aria-pressed="false"
+      >
+        Mode clair
+      </button>
+    </header>
+
+    <!-- Indicateur de défilement : apparaît juste après l'intro, disparaît dès qu'on défile. -->
+    <a
+      class="scroll-cue"
+      href="#profil"
+      aria-label="Faire défiler vers le profil"
+    >
+      <span class="scroll-cue__text">Faites défiler</span>
+      <svg class="scroll-cue__icon" viewBox="0 0 48 48" aria-hidden="true">
+        <circle class="scroll-cue__ring" cx="24" cy="24" r="22" />
+        <circle
+          class="scroll-cue__ring scroll-cue__ring--2"
+          cx="24"
+          cy="24"
+          r="22"
+        />
+        <circle class="scroll-cue__hex" cx="24" cy="24" r="22" />
+        <path class="scroll-cue__arrow" d="M24 13v19M16.5 25.5 24 33l7.5-7.5" />
+      </svg>
+    </a>
+
+    <ol class="rail" aria-hidden="true">
+      <li>
+        <a href="#accueil" tabindex="-1"><span>Accueil</span></a>
+      </li>
+      <li>
+        <a href="#profil" tabindex="-1"><span>Profil</span></a>
+      </li>
+      <li>
+        <a href="#projets" tabindex="-1"><span>Projets</span></a>
+      </li>
+      <li>
+        <a href="#competences" tabindex="-1"><span>Compétences</span></a>
+      </li>
+      <li>
+        <a href="#contact" tabindex="-1"><span>Contact</span></a>
+      </li>
+    </ol>
+
+    <main class="page" id="contenu" aria-label="Portfolio de Hakim Elkhia">
+      <!-- Accueil : en défilant, on zoome dans l'alvéole centrale. -->
+      <section class="hero" id="accueil">
+        <div class="hero__pin">
+          <div class="hero__meta">
+            <span>Portfolio</span>
+            <span>Design graphique · Photographie · Création web</span>
+          </div>
+          <div class="hero__main">
+            <h1 class="hero__title" aria-label="Hakim Elkhia">
+              <span class="hero__line" aria-hidden="true" data-chars
+                >Hakim</span
+              >
+              <span class="hero__line" aria-hidden="true" data-chars
+                >Elkhia</span
+              >
+            </h1>
+            <div class="hero__sub">
+              <div>
+                <p class="hero__tagline">
+                  Graphisme, photographie, création : voici ma <em>passion</em>.
+                </p>
+                <p class="hero__goal">
+                  Étudiant en MMI, à la recherche d’opportunités en
+                  communication visuelle, design graphique et création web.
+                </p>
+              </div>
+              <nav class="hero__cta" aria-label="Accès rapide">
+                <a class="btn btn--primary" href="#projets">Voir mes projets</a>
+                <a class="btn" href="#contact">Me contacter</a>
+              </nav>
+            </div>
+          </div>
+          <div class="hero__foot">
+            <span class="hero__status"
+              ><i aria-hidden="true"></i>Ouvert aux opportunités</span
+            >
+            <span>Étudiant en MMI</span>
+          </div>
+        </div>
+      </section>
+
+      <div class="ticker" aria-hidden="true">
+        <div class="ticker__track">
+          <span class="ticker__item">Design graphique</span
+          ><span class="ticker__item">Photographie</span
+          ><span class="ticker__item">Création web</span
+          ><span class="ticker__item">Communication visuelle</span
+          ><span class="ticker__item">Affiches</span
+          ><span class="ticker__item">Illustrator</span
+          ><span class="ticker__item">Photoshop</span
+          ><span class="ticker__item">Landing page</span
+          ><span class="ticker__item">Design graphique</span
+          ><span class="ticker__item">Photographie</span
+          ><span class="ticker__item">Création web</span
+          ><span class="ticker__item">Communication visuelle</span
+          ><span class="ticker__item">Affiches</span
+          ><span class="ticker__item">Illustrator</span
+          ><span class="ticker__item">Photoshop</span
+          ><span class="ticker__item">Landing page</span>
+        </div>
+      </div>
+
+      <!-- Profil : le texte s'allume mot après mot pendant le défilement. -->
+      <section class="about" id="profil" aria-labelledby="about-title">
+        <div class="about__pin">
+          <h2 class="eyebrow" id="about-title">Qui je suis</h2>
+          <p class="about__text" data-scrub>
+            Je suis <span class="hl">étudiant</span> en Métiers du Multimédias
+            et de l'Internet, et j’aime donner vie à mes
+            <span class="hl">idées</span>. Curieux et créatif, je conçois des
+            univers visuels qui marquent les esprits, en design comme sur le
+            web.
+          </p>
+          <dl class="about__stats">
+            <div>
+              <dt>Projets</dt>
+              <dd data-count="6">00</dd>
+            </div>
+            <div>
+              <dt>Domaines</dt>
+              <dd data-count="3">00</dd>
+            </div>
+            <div>
+              <dt>Cursus</dt>
+              <dd>MMI</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <!-- Projets : défilement horizontal épinglé, cartes ouvertes par projects.js. -->
+      <section class="projects" id="projets" aria-labelledby="projects-title">
+        <div class="projects__pin">
+          <header class="projects__heading">
+            <div>
+              <p class="eyebrow">2025—2026</p>
+              <h2 class="projects__title split" id="projects-title">
+                Mes <em>projets</em> / <em>passions</em>
+              </h2>
+            </div>
+            <div class="projects__side">
+              <p class="projects__description">
+                Des projets réalisés pendant mes études.
+              </p>
+              <div class="projects__counter" aria-hidden="true">
+                <b>01</b> / 06
+              </div>
+              <div class="projects__bar" aria-hidden="true"></div>
+            </div>
+          </header>
+
+          <div class="projects__backdrop" aria-hidden="true" hidden></div>
+
+          <!-- Visionneuse plein écran commune aux images de tous les projets. -->
+          <dialog
+            class="photo-lightbox"
+            aria-labelledby="photo-lightbox__title"
+          >
+            <button
+              class="photo-lightbox__close"
+              type="button"
+              aria-label="Fermer la photo agrandie"
+            ></button>
+            <button
+              class="photo-lightbox__navigation photo-lightbox__navigation--previous"
+              type="button"
+              aria-label="Afficher la photo précédente"
+            >
+              <span aria-hidden="true">←</span>
+            </button>
+            <p class="photo-lightbox__title" id="photo-lightbox__title"></p>
+            <img
+              class="photo-lightbox__image"
+              src="../assets/photo1.jpg"
+              alt=""
+            />
+            <button
+              class="photo-lightbox__navigation photo-lightbox__navigation--next"
+              type="button"
+              aria-label="Afficher la photo suivante"
+            >
+              <span aria-hidden="true">→</span>
+            </button>
+          </dialog>
+
+          <div class="projects__list">
+            <article
+              class="project project--featured"
+              id="project-01"
+              data-project-id="project-01"
+            >
+              <figure class="project__cover" aria-hidden="true">
+                <img
+                  src="../assets/Rock%20en%20seine7.png"
+                  alt=""
+                  loading="lazy"
+                />
+              </figure>
+              <h3 class="project__heading" id="project-title-01">
+                Rock en Seine
+              </h3>
+              <button
+                class="project__open"
+                type="button"
+                aria-expanded="false"
+                aria-labelledby="project-title-01"
+              >
+                <span class="project__number">01</span>
+                <span class="project__copy">
+                  <span class="project__category"
+                    >Projet collectif · Communication visuelle</span
+                  >
+                  <span class="project__title" aria-hidden="true"
+                    >Rock en Seine</span
+                  >
+                  <span class="project__description">
+                    <span class="project__contribution">
+                      <strong class="project__contribution-label"
+                        >Travail d’équipe</strong
+                      >
+                      Imaginer un univers visuel pour le festival et le décliner
+                      sur des affiches, flyers, publications Instagram et un
+                      site web.
+                    </span>
+                    <span class="project__contribution">
+                      <strong class="project__contribution-label"
+                        >Ma contribution personnelle</strong
+                      >
+                      Réaliser une proposition d’affiche en solo.
+                    </span>
+                  </span>
+                </span>
+                <span class="project__mark" aria-hidden="true">↗</span>
+              </button>
+              <section
+                class="project__gallery"
+                aria-label="Photos du projet 01"
+              >
+                <p class="project__gallery-empty">
+                  Aucune photo pour ce projet.
+                </p>
+                <div class="project__images">
+                  <figure class="project__photo">
+                    <img
+                      src="../assets/rock%20en%20seine7.png"
+                      alt="Maquettes de plusieurs affiches pour le festival Rock en Seine."
+                    />
+                    <figcaption>
+                      Modèles de l’équipe pour la création d’affiches.
+                    </figcaption>
+                  </figure>
+                  <figure class="project__photo">
+                    <img
+                      src="../assets/rock%20en%20seine2.png"
+                      alt="Essais typographiques pour l’identité visuelle de Rock en Seine."
+                    />
+                    <figcaption>Essais typographiques</figcaption>
+                  </figure>
+                  <figure class="project__photo">
+                    <img
+                      src="../assets/rock%20en%20seine3.png"
+                      alt="Flyer promotionnel de Rock en Seine créé par l’équipe du projet."
+                    />
+                    <figcaption>
+                      Visuel de flyers créé par l’équipe du projet.
+                    </figcaption>
+                  </figure>
+                  <figure class="project__photo">
+                    <img
+                      src="../assets/rock%20en%20seine4.png"
+                      alt="Visuel d’une publication Instagram créé par l’équipe pour Rock en Seine."
+                    />
+                    <figcaption>
+                      Visuel de publication Instagram réalisé par l’équipe.
+                    </figcaption>
+                  </figure>
+                  <figure class="project__photo">
+                    <img
+                      src="../assets/rock%20en%20seine5.png"
+                      alt="Autre visuel de publication Instagram créé par l’équipe pour Rock en Seine."
+                    />
+                    <figcaption>
+                      Visuel de publication Instagram réalisé par l’équipe.
+                    </figcaption>
+                  </figure>
+                  <figure class="project__photo">
+                    <img
+                      src="../assets/rock%20en%20seine6.png"
+                      alt="Proposition d’affiche réalisée en solo pour Rock en Seine."
+                    />
+                    <figcaption>
+                      Ressource créée en solo pour une proposition d’affiche.
+                    </figcaption>
+                  </figure>
+                  <figure class="project__photo">
+                    <img
+                      src="../assets/Rock%20en%20seine1.png"
+                      alt="Affiche proposée en solo pour le projet Rock en Seine."
+                    />
+                    <figcaption>
+                      Proposition d’affiche réalisée en solo.
+                    </figcaption>
+                  </figure>
+                </div>
+              </section>
+              <button
+                class="project__close"
+                type="button"
+                aria-label="Fermer ce projet"
+              ></button>
+            </article>
+
+            <article
+              class="project project--featured"
+              id="project-02"
+              data-project-id="project-02"
+            >
+              <figure class="project__cover" aria-hidden="true">
+                <img src="../assets/photo1.jpg" alt="" loading="lazy" />
+              </figure>
+              <h3 class="project__heading" id="project-title-02">Photos</h3>
+              <button
+                class="project__open"
+                type="button"
+                aria-expanded="false"
+                aria-labelledby="project-title-02"
+              >
+                <span class="project__number">02</span>
+                <span class="project__copy">
+                  <span class="project__category"
+                    >Photographie personnelle</span
+                  >
+                  <span class="project__title" aria-hidden="true">Photos</span>
+                  <span class="project__description">
+                    <span class="project__contribution">
+                      <strong class="project__contribution-label"
+                        >Projet personnel</strong
+                      >
+                      Sélection de vingt-cinq photographies prises pendant mon
+                      temps libre.
+                    </span>
+                  </span>
+                </span>
+                <span class="project__mark" aria-hidden="true">↗</span>
+              </button>
+              <section
+                class="project__gallery"
+                aria-label="Photos du projet 02"
+              >
+                <p class="project__gallery-empty">
+                  Aucune photo pour ce projet.
+                </p>
+                <div class="project__images">
+                  <figure class="project__photo">
+                    <img
+                      src="../assets/photo1.jpg"
+                      alt="Voie lactée au-dessus d’un toit sombre, sous un ciel orangé."
+                    />
+                    <figcaption></figcaption>
+                  </figure>
+                  <figure class="project__photo">
+                    <img
+                      src="../assets/photo2.jpg"
+                      alt="Voie lactée lumineuse qui traverse verticalement un ciel nocturne."
+                    />
+                    <figcaption></figcaption>
+                  </figure>
+                  <figure class="project__photo">
+                    <img
+                      src="../assets/photo3.jpg"
+                      alt="Ciel étoilé orangé traversé par la silhouette d’un poteau et de fils électriques."
+                    />
+                    <figcaption></figcaption>
+                  </figure>
+                  <figure class="project__photo">
+                    <img
+                      src="../assets/photo4.jpg"
+                      alt="Champ éclairé et arbres sous un ciel nocturne traversé par des fils électriques."
+                    />
+                    <figcaption></figcaption>
+                  </figure>
+                  <figure class="project__photo">
+                    <img
+                      src="../assets/photo5.jpg"
+                      alt="Champ et arbres sous un ciel étoilé, vus derrière une clôture."
+                    />
+                    <figcaption></figcaption>
+                  </figure>
+                  <figure class="project__photo">
+                    <img
+                      src="../assets/photo6.jpg"
+                      alt="Silhouette d’un pin sous un ciel étoilé traversé par des câbles aériens."
+                    />
+                    <figcaption></figcaption>
+                  </figure>
+                  <figure class="project__photo">
+                    <img
+                      src="../assets/photo7.jpg"
+                      alt="Champ orangé et arbres sous un ciel nocturne avec des fils électriques."
+                    />
+                    <figcaption></figcaption>
+                  </figure>
+                  <figure class="project__photo">
+                    <img
+                      src="../assets/photo8.jpg"
+                      alt="Fontaine dans un parc, en silhouette sous un ciel nuageux de fin de journée."
+                    />
+                    <figcaption></figcaption>
+                  </figure>
+                  <!-- <figure class="project__photo">
+                    <img
+                      src="../assets/photo9.png"
+                      alt="Photographie personnelle numéro 9."
+                    />
+                    <figcaption></figcaption>
+                  </figure>
+                  <figure class="project__photo">
+                    <img
+                      src="../assets/photo10.jpg"
+                      alt="Photographie personnelle numéro 10."
+                    />
+                    <figcaption></figcaption>
+                  </figure>
+                  <figure class="project__photo">
+                    <img
+                      src="../assets/photo11.jpg"
+                      alt="Photographie personnelle numéro 11."
+                    />
+                    <figcaption></figcaption>
+                  </figure>
+                  <figure class="project__photo">
+                    <img
+                      src="../assets/photo12.jpg"
+                      alt="Photographie personnelle numéro 12."
+                    />
+                    <figcaption></figcaption>
+                  </figure>
+                  <figure class="project__photo">
+                    <img
+                      src="../assets/photo13.jpg"
+                      alt="Photographie personnelle numéro 13."
+                    />
+                    <figcaption></figcaption>
+                  </figure>
+                  <figure class="project__photo">
+                    <img
+                      src="../assets/photo14.jpg"
+                      alt="Photographie personnelle numéro 14."
+                    />
+                    <figcaption></figcaption>
+                  </figure>
+                  <figure class="project__photo">
+                    <img
+                      src="../assets/photo15.jpg"
+                      alt="Photographie personnelle numéro 15."
+                    />
+                    <figcaption></figcaption>
+                  </figure>
+                  <figure class="project__photo">
+                    <img
+                      src="../assets/photo16.jpg"
+                      alt="Photographie personnelle numéro 16."
+                    />
+                    <figcaption></figcaption>
+                  </figure>
+                  <figure class="project__photo">
+                    <img
+                      src="../assets/photo17.jpg"
+                      alt="Photographie personnelle numéro 17."
+                    />
+                    <figcaption></figcaption>
+                  </figure>
+                  <figure class="project__photo">
+                    <img
+                      src="../assets/photo18.jpg"
+                      alt="Photographie personnelle numéro 18."
+                    />
+                    <figcaption></figcaption>
+                  </figure>
+                  <figure class="project__photo">
+                    <img
+                      src="../assets/photo19.jpg"
+                      alt="Photographie personnelle numéro 19."
+                    />
+                    <figcaption></figcaption>
+                  </figure>
+                  <figure class="project__photo">
+                    <img
+                      src="../assets/photo20.jpg"
+                      alt="Photographie personnelle numéro 20."
+                    />
+                    <figcaption></figcaption>
+                  </figure>
+                  <figure class="project__photo">
+                    <img
+                      src="../assets/photo21.jpg"
+                      alt="Photographie personnelle numéro 21."
+                    />
+                    <figcaption></figcaption>
+                  </figure>
+                  <figure class="project__photo">
+                    <img
+                      src="../assets/photo22.jpg"
+                      alt="Photographie personnelle numéro 22."
+                    />
+                    <figcaption></figcaption>
+                  </figure>
+                  <figure class="project__photo">
+                    <img
+                      src="../assets/photo23.jpg"
+                      alt="Photographie personnelle numéro 23."
+                    />
+                    <figcaption></figcaption>
+                  </figure>
+                  <figure class="project__photo">
+                    <img
+                      src="../assets/photo24.jpg"
+                      alt="Photographie personnelle numéro 24."
+                    />
+                    <figcaption></figcaption>
+                  </figure> -->
+                  <figure class="project__photo">
+                    <img
+                      src="../assets/photo25.jpg"
+                      alt="Photographie personnelle numéro 25."
+                    />
+                    <figcaption></figcaption>
+                  </figure>
+                </div>
+              </section>
+              <button
+                class="project__close"
+                type="button"
+                aria-label="Fermer ce projet"
+              ></button>
+            </article>
+
+            <article
+              class="project project--featured"
+              data-project-id="project-03"
+            >
+              <figure class="project__cover" aria-hidden="true">
+                <img src="../assets/dessin1.jpg" alt="" loading="lazy" />
+              </figure>
+              <h3 class="project__heading" id="project-title-03">Dessins</h3>
+              <button
+                class="project__open"
+                type="button"
+                aria-expanded="false"
+                aria-labelledby="project-title-03"
+              >
+                <span class="project__number">03</span>
+                <span class="project__copy">
+                  <span class="project__category">Dessin personnel</span>
+                  <span class="project__title" aria-hidden="true">Dessins</span>
+                  <span class="project__description">
+                    <span class="project__contribution">
+                      <strong class="project__contribution-label"
+                        >Pratique personnelle</strong
+                      >
+                      Je dessine pendant mon temps libre, au gré des idées qui
+                      me passent par la tête.
+                    </span>
+                  </span>
+                </span>
+                <span class="project__mark" aria-hidden="true">↗</span>
+              </button>
+              <section
+                class="project__gallery"
+                aria-label="Galerie du projet Dessins"
+              >
+                <p class="project__gallery-empty">
+                  Aucune photo pour ce projet.
+                </p>
+                <div class="project__images">
+                  <figure class="project__photo">
+                    <img
+                      src="../assets/dessin1.jpg"
+                      alt="Dessin personnel numéro 1."
+                    />
+                    <figcaption></figcaption>
+                  </figure>
+                  <figure class="project__photo">
+                    <img
+                      src="../assets/dessin2.jpg"
+                      alt="Dessin personnel numéro 2."
+                    />
+                    <figcaption></figcaption>
+                  </figure>
+                  <figure class="project__photo">
+                    <img
+                      src="../assets/dessin3.jpg"
+                      alt="Dessin personnel numéro 3."
+                    />
+                    <figcaption></figcaption>
+                  </figure>
+                  <figure class="project__photo">
+                    <img
+                      src="../assets/dessin4.jpg"
+                      alt="Dessin personnel numéro 4."
+                    />
+                    <figcaption></figcaption>
+                  </figure>
+                  <figure class="project__photo">
+                    <img
+                      src="../assets/dessin6.jpg"
+                      alt="Dessin personnel numéro 6."
+                    />
+                    <figcaption></figcaption>
+                  </figure>
+                </div>
+              </section>
+              <button
+                class="project__close"
+                type="button"
+                aria-label="Fermer ce projet"
+              ></button>
+            </article>
+            <!-- Modèle de projet : duplique cet article et mets à jour son contenu. -->
+            <article
+              class="project project--featured"
+              id="project-04"
+              data-project-id="project-04"
+            >
+              <figure class="project__cover" aria-hidden="true">
+                <img src="../assets/sticker1.jpg" alt="" loading="lazy" />
+              </figure>
+              <h3 class="project__heading" id="project-title-04">Stickers</h3>
+              <button
+                class="project__open"
+                type="button"
+                aria-expanded="false"
+                aria-labelledby="project-title-04"
+              >
+                <span class="project__number">04</span>
+                <span class="project__copy">
+                  <span class="project__category"
+                    >Projet universitaire · Stickers</span
+                  >
+                  <span class="project__title" aria-hidden="true"
+                    >Stickers</span
+                  >
+                  <span class="project__description">
+                    <span class="project__contribution">
+                      <strong class="project__contribution-label"
+                        >Ma réalisation</strong
+                      >
+                      Créer une série de stickers représentant mes compétences
+                      techniques et comportementales avec Illustrator et
+                      Photoshop.
+                    </span>
+                  </span>
+                </span>
+                <span class="project__mark" aria-hidden="true">↗</span>
+              </button>
+              <section
+                class="project__gallery"
+                aria-label="Galerie du projet Stickers"
+              >
+                <p class="project__gallery-empty">
+                  Aucune photo pour ce projet.
+                </p>
+                <div class="project__images">
+                  <!-- Copie ces figures et remplace leurs chemins et descriptions.
+                  <figure class="project__photo">
+                    <img src="../assets/projet-03/photo-01.jpg" alt="Description de la photo">
+                    <figcaption>Nom de la photo</figcaption>
+                  </figure>
+                  <figure class="project__photo">
+                    <img src="../assets/projet-03/photo-02.jpg" alt="Description de la photo">
+                    <figcaption>Nom de la photo</figcaption>
+                  </figure>
+                  -->
+                </div>
+              </section>
+              <button
+                class="project__close"
+                type="button"
+                aria-label="Fermer ce projet"
+              ></button>
+            </article>
+            <!-- Modèle de projet : duplique cet article et mets à jour son contenu. -->
+            <article
+              class="project project--featured"
+              id="project-05"
+              data-project-id="project-05"
+            >
+              <figure class="project__cover" aria-hidden="true">
+                <img src="../assets/site1.jpg" alt="" loading="lazy" />
+              </figure>
+              <h3 class="project__heading" id="project-title-05">
+                Création d'un site web
+              </h3>
+              <button
+                class="project__open"
+                type="button"
+                aria-expanded="false"
+                aria-labelledby="project-title-05"
+              >
+                <span class="project__number">05</span>
+                <span class="project__copy">
+                  <span class="project__category"
+                    >Projet universitaire · Web</span
+                  >
+                  <span class="project__title" aria-hidden="true"
+                    >Création d'un site web</span
+                  >
+                  <span class="project__description">
+                    <span class="project__contribution">
+                      <strong class="project__contribution-label"
+                        >Déroulé du projet universitaire</strong
+                      >
+                      Première consigne : créer un site web inspiré de Netflix.
+                      Une seconde consigne, donnée une semaine avant la fin,
+                      imposait de reproduire le style d’un autre site.
+                    </span>
+                  </span>
+                </span>
+                <span class="project__mark" aria-hidden="true">↗</span>
+              </button>
+              <section
+                class="project__gallery"
+                aria-label="Galerie du projet Création d'un site web"
+              >
+                <p class="project__gallery-empty">
+                  Aucune photo pour ce projet.
+                </p>
+                <div class="project__images">
+                  <!-- Copie ces figures et remplace leurs chemins et descriptions.
+                  <figure class="project__photo">
+                    <img src="../assets/projet-03/photo-01.jpg" alt="Description de la photo">
+                    <figcaption>Nom de la photo</figcaption>
+                  </figure>
+                  <figure class="project__photo">
+                    <img src="../assets/projet-03/photo-02.jpg" alt="Description de la photo">
+                    <figcaption>Nom de la photo</figcaption>
+                  </figure>
+                  -->
+                </div>
+              </section>
+              <button
+                class="project__close"
+                type="button"
+                aria-label="Fermer ce projet"
+              ></button>
+            </article>
+
+            <article
+              class="project project--featured"
+              id="project-06"
+              data-project-id="project-06"
+            >
+              <figure class="project__cover" aria-hidden="true">
+                <img src="../assets/landing1.jpg" alt="" loading="lazy" />
+              </figure>
+              <h3 class="project__heading" id="project-title-06">
+                Landing Page
+              </h3>
+              <button
+                class="project__open"
+                type="button"
+                aria-expanded="false"
+                aria-labelledby="project-title-06"
+              >
+                <span class="project__number">06</span>
+                <span class="project__copy">
+                  <span class="project__category"
+                    >Projet universitaire · Création web</span
+                  >
+                  <span class="project__title" aria-hidden="true"
+                    >Landing Page</span
+                  >
+                  <span class="project__description">
+                    <span class="project__contribution">
+                      <strong class="project__contribution-label"
+                        >Ma réalisation</strong
+                      >
+                      Concevoir une page d’atterrissage destinée à un cinéma
+                      dans le cadre d’un projet universitaire.
+                    </span>
+                  </span>
+                </span>
+                <span class="project__mark" aria-hidden="true">↗</span>
+              </button>
+              <section
+                class="project__gallery"
+                aria-label="Galerie du projet Landing Page"
+              >
+                <p class="project__gallery-empty">
+                  Aucune photo pour ce projet.
+                </p>
+                <div class="project__images">
+                  <!-- Copie ces figures et remplace leurs chemins et descriptions.
+                  <figure class="project__photo">
+                    <img src="../assets/projet-03/photo-01.jpg" alt="Description de la photo">
+                    <figcaption>Nom de la photo</figcaption>
+                  </figure>
+                  <figure class="project__photo">
+                    <img src="../assets/projet-03/photo-02.jpg" alt="Description de la photo">
+                    <figcaption>Nom de la photo</figcaption>
+                  </figure>
+                  -->
+                </div>
+              </section>
+              <button
+                class="project__close"
+                type="button"
+                aria-label="Fermer ce projet"
+              ></button>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Compétences : les cartes s'empilent pendant le défilement. -->
+      <section class="skills" id="competences" aria-labelledby="skills-title">
+        <header class="skills__heading">
+          <div>
+            <p class="eyebrow">Ce que je sais faire</p>
+            <h2 class="skills__title split" id="skills-title">
+              Mes <em>compétences</em>
+            </h2>
+          </div>
+          <p class="skills__intro">
+            Des compétences développées à travers mes projets universitaires et
+            personnels.
+          </p>
+        </header>
+        <div class="skills__grid">
+          <article class="skill-card">
+            <span class="skill-card__number" aria-hidden="true">01</span>
+            <h3 class="skill-card__title">Communication visuelle</h3>
+            <div class="skill-card__body">
+              <p class="skill-card__description">
+                Imaginer un univers graphique et le décliner sur différents
+                supports pour un projet collectif autour de Rock en Seine.
+              </p>
+              <ul class="skill-card__tags" aria-label="Supports">
+                <li>Affiches</li>
+                <li>Flyers</li>
+                <li>Réseaux sociaux</li>
+              </ul>
+              <button
+                class="skill-card__link skill-card__open"
+                type="button"
+                data-project-target="project-01"
+                aria-controls="project-01"
+                aria-expanded="false"
+              >
+                Ouvrir le projet <span aria-hidden="true">↗</span>
+              </button>
+            </div>
+          </article>
+
+          <article class="skill-card">
+            <span class="skill-card__number" aria-hidden="true">02</span>
+            <h3 class="skill-card__title">Design graphique</h3>
+            <div class="skill-card__body">
+              <p class="skill-card__description">
+                Créer une série de stickers pour représenter des compétences,
+                avec Illustrator et Photoshop.
+              </p>
+              <ul class="skill-card__tags" aria-label="Outils et réalisation">
+                <li>Illustrator</li>
+                <li>Photoshop</li>
+                <li>Stickers</li>
+              </ul>
+              <button
+                class="skill-card__link skill-card__open"
+                type="button"
+                data-project-target="project-04"
+                aria-controls="project-04"
+                aria-expanded="false"
+              >
+                Ouvrir le projet <span aria-hidden="true">↗</span>
+              </button>
+            </div>
+          </article>
+
+          <article class="skill-card">
+            <span class="skill-card__number" aria-hidden="true">03</span>
+            <h3 class="skill-card__title">Photographie</h3>
+            <div class="skill-card__body">
+              <p class="skill-card__description">
+                Réaliser et présenter une sélection de photographies
+                personnelles prises pendant mon temps libre.
+              </p>
+              <ul class="skill-card__tags" aria-label="Pratique">
+                <li>Prise de vue</li>
+                <li>Sélection photo</li>
+              </ul>
+              <button
+                class="skill-card__link skill-card__open"
+                type="button"
+                data-project-target="project-02"
+                aria-controls="project-02"
+                aria-expanded="false"
+              >
+                Ouvrir la sélection <span aria-hidden="true">↗</span>
+              </button>
+            </div>
+          </article>
+
+          <article class="skill-card">
+            <span class="skill-card__number" aria-hidden="true">04</span>
+            <h3 class="skill-card__title">Création web</h3>
+            <div class="skill-card__body">
+              <p class="skill-card__description">
+                Concevoir des pages web dans le cadre de projets universitaires,
+                dont un site inspiré de Netflix et une landing page pour un
+                cinéma.
+              </p>
+              <ul class="skill-card__tags" aria-label="Réalisations">
+                <li>Site web</li>
+                <li>Landing page</li>
+              </ul>
+              <div class="skill-card__links">
+                <button
+                  class="skill-card__link skill-card__open"
+                  type="button"
+                  data-project-target="project-05"
+                  aria-controls="project-05"
+                  aria-expanded="false"
+                >
+                  Ouvrir le site web <span aria-hidden="true">↗</span>
+                </button>
+                <button
+                  class="skill-card__link skill-card__open"
+                  type="button"
+                  data-project-target="project-06"
+                  aria-controls="project-06"
+                  aria-expanded="false"
+                >
+                  Ouvrir la landing page <span aria-hidden="true">↗</span>
+                </button>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="contact" id="contact" aria-labelledby="contact-title">
+        <p class="eyebrow">Mes réseaux</p>
+        <h2 class="contact__title split" id="contact-title">
+          Parlons de votre <em>projet</em>
+        </h2>
+        <div class="contact__row">
+          <p class="contact__description">
+            Communication visuelle, design graphique ou création web : je serais
+            ravi d’en discuter avec vous.
+          </p>
+          <div class="contact__actions">
+            <a class="btn btn--primary" href="mailto:hakimelkhia.pro@gmail.com"
+              >Me contacter par e-mail ↗</a
+            >
+            <button
+              class="btn"
+              type="button"
+              data-copy="hakimelkhia.pro@gmail.com"
+            >
+              Copier l’adresse
+            </button>
+          </div>
+        </div>
+        <nav class="contact__links" aria-label="Mes réseaux et mon contact">
+          <a
+            class="contact__link"
+            href="https://www.linkedin.com/in/dexlemagnifique/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span class="contact__link-copy">
+              <span class="contact__link-label">LinkedIn</span>
+              <span class="contact__link-detail">Mon profil professionnel</span>
+            </span>
+            <span class="contact__link-mark" aria-hidden="true">↗</span>
+          </a>
+          <a
+            class="contact__link"
+            href="https://github.com/hakimelkhiaa-boop"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span class="contact__link-copy">
+              <span class="contact__link-label">GitHub</span>
+              <span class="contact__link-detail"
+                >Mon profil et mes projets</span
+              >
+            </span>
+            <span class="contact__link-mark" aria-hidden="true">↗</span>
+          </a>
+          <a
+            class="contact__link"
+            href="https://www.instagram.com/dex_le_magnifique/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span class="contact__link-copy">
+              <span class="contact__link-label">Instagram</span>
+              <span class="contact__link-detail">Ce que j’aime</span>
+            </span>
+            <span class="contact__link-mark" aria-hidden="true">↗</span>
+          </a>
+        </nav>
+        <div class="contact__signature">
+          <p>
+            J’ai envie de contribuer à des projets qui font dialoguer image,
+            identité visuelle et création web. Au plaisir d’échanger,
+            <strong>Hakim ELKHIA</strong>.
+          </p>
+          <a class="contact__top" href="#accueil">Retour en haut ↑</a>
+        </div>
+        <p class="footer-mark" aria-hidden="true">Hakim Elkhia</p>
+      </section>
+    </main>
+  </body>
+</html>
