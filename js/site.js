@@ -400,30 +400,6 @@
     true,
   );
 
-  /* Curseur : un anneau qui suit la souris, « VOIR » sur les projets. */
-  const cursor = $(".cursor");
-  let cursorX = window.innerWidth / 2;
-  let cursorY = window.innerHeight / 2;
-  let cursorTargetX = cursorX;
-  let cursorTargetY = cursorY;
-
-  if (cursor && fine && !reduce) {
-    const label = $("span", cursor);
-    window.addEventListener("pointermove", (event) => {
-      cursorTargetX = event.clientX;
-      cursorTargetY = event.clientY;
-      cursor.classList.add("is-on");
-    });
-    window.addEventListener("pointerover", (event) => {
-      const element = event.target instanceof Element ? event.target : null;
-      const onCard = element?.closest(".project:not(.project--expanded)");
-      const onZoom = element?.closest('.project--expanded .project__photo[data-gallery-position="current"] img');
-      cursor.classList.toggle("is-view", Boolean(onCard || onZoom));
-      label.textContent = onZoom ? "ZOOM" : onCard ? "VOIR" : "";
-    });
-    document.addEventListener("mouseleave", () => cursor.classList.remove("is-on"));
-  }
-
   /* Statistiques : compteur animé quand le profil est lu. */
   let counted = false;
   function countUp() {
@@ -468,10 +444,12 @@
   let lineCount = 56;
   let accent = "#d6b87a";
   let accentRgb = "214,184,122";
+  let pageColor = "#0a0907";
   let baseAlpha = 0.11;
 
   function readColors() {
     accent = getComputedStyle(root).getPropertyValue("--accent").trim() || accent;
+    pageColor = getComputedStyle(root).getPropertyValue("--bg").trim() || pageColor;
     const hex = accent.replace("#", "");
     const full = hex.length === 3 ? hex.replace(/./g, "$&$&") : hex;
     accentRgb = [0, 2, 4].map((i) => parseInt(full.slice(i, i + 2), 16) || 0).join(",");
@@ -498,83 +476,403 @@
     }
   });
 
-  /* Hologramme : un globe en fil de fer qui tourne dans l'anneau de l'accueil.
-     Les lignes de l'arrière sont plus pâles, un faisceau balaie le globe de haut en bas. */
-  const HOLO_TILT = 0.42;
-  const HOLO_MERIDIANS = 12;
-  const HOLO_PARALLELS = [-60, -30, 0, 30, 60];
+  /* ------------------------------------------------------------------ */
+  /* Serpent en hologramme                                               */
+  /* ------------------------------------------------------------------ */
+  // Le serpent suit une « colonne vertébrale » (une suite de points, de la tête à la queue).
+  // Le même dessin sert à l'accueil (il s'enroule autour de l'anneau) et au chargement
+  // (il glisse sur la barre de progression).
 
-  function drawHologram(cx, cy, R, time, alpha) {
-    const spin = reduce ? 0.6 : time * 0.00042;
-    const cosT = Math.cos(HOLO_TILT);
-    const sinT = Math.sin(HOLO_TILT);
+  // Épaisseur du corps : cou fin derrière la tête, corps plein, queue qui finit en pointe.
+  const serpentWidth = (s) => (0.62 + 0.38 * Math.sin(Math.min(1, s / 0.3) * (Math.PI / 2))) * Math.pow(1 - s, 0.75);
+
+  // Tête vue de profil, dans un repère local : x vers l'avant, y vers le dos (unité = « size »).
+  // Le profil est décrit par son dessus et son dessous à différents x : crâne large et plat,
+  // plus gros que le cou, long museau arrondi, mâchoire qui remonte vers le bout du nez.
+  const HEAD_PROFILE = [
+    // x, dessus, dessous
+    [0, 0.66, -0.66],
+    [0.45, 0.86, -0.84],
+    [0.95, 1.0, -0.96],
+    [1.45, 1.04, -0.94],
+    [1.95, 0.98, -0.84],
+    [2.45, 0.84, -0.7],
+    [2.85, 0.66, -0.54],
+    [3.15, 0.46, -0.36],
+    [3.36, 0.22, -0.16],
+    [3.44, 0.02, 0.02],
+  ];
+  // Interpolation douce (Catmull-Rom) entre les points du profil.
+  function headEdge(x, column) {
+    const rows = HEAD_PROFILE;
+    let k = 0;
+    while (k < rows.length - 2 && rows[k + 1][0] < x) {
+      k += 1;
+    }
+    const p0 = rows[Math.max(0, k - 1)][column];
+    const p1 = rows[k][column];
+    const p2 = rows[k + 1][column];
+    const p3 = rows[Math.min(rows.length - 1, k + 2)][column];
+    const t = Math.min(1, Math.max(0, (x - rows[k][0]) / (rows[k + 1][0] - rows[k][0])));
+    return 0.5 * (2 * p1 + (p2 - p0) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t * t + (3 * p1 - p0 - 3 * p2 + p3) * t * t * t);
+  }
+  const HEAD_LENGTH = 3.44;
+  const fixed = (value) => value.toFixed(3);
+  function buildHead() {
+    const STEPS = 40;
+    const top = [];
+    const bottom = [];
+    for (let k = 0; k <= STEPS; k += 1) {
+      const x = (k / STEPS) * HEAD_LENGTH;
+      top.push(`${fixed(x)} ${fixed(headEdge(x, 1))}`);
+      bottom.push(`${fixed(x)} ${fixed(headEdge(x, 2))}`);
+    }
+    const outline = "M" + top.join("L") + "L" + bottom.reverse().join("L");
+    // Maillage : lignes qui suivent la forme de la tête, et coupes en travers.
+    let mesh = "";
+    for (let row = 1; row < 8; row += 1) {
+      const t = row / 8;
+      const line = [];
+      for (let k = 0; k <= STEPS - 2; k += 1) {
+        const x = (k / STEPS) * HEAD_LENGTH;
+        const lower = headEdge(x, 2);
+        const upper = headEdge(x, 1);
+        // Les lignes se resserrent vers le haut et le bas, comme sur une surface bombée.
+        const curved = 0.5 - 0.5 * Math.cos(t * Math.PI);
+        line.push(`${fixed(x)} ${fixed(lower + (upper - lower) * curved)}`);
+      }
+      mesh += "M" + line.join("L");
+    }
+    for (let column = 1; column < 15; column += 1) {
+      const x = (column / 15) * HEAD_LENGTH * 0.97;
+      const lower = headEdge(x, 2);
+      const upper = headEdge(x, 1);
+      const line = [];
+      for (let k = 0; k <= 10; k += 1) {
+        const t = k / 10;
+        // La coupe bombe légèrement vers l'avant, comme un anneau vu de biais.
+        line.push(`${fixed(x + Math.sin(t * Math.PI) * 0.09)} ${fixed(lower + (upper - lower) * t)}`);
+      }
+      mesh += "M" + line.join("L");
+    }
+    return { outline, mesh };
+  }
+  const HEAD_SHAPE = buildHead();
+  const SERPENT_HEAD = new Path2D(HEAD_SHAPE.outline + "Z"); // rempli
+  const SERPENT_HEAD_LINE = new Path2D(HEAD_SHAPE.outline); // tracé, sans trait à la jonction du cou
+  const SERPENT_MESH = new Path2D(HEAD_SHAPE.mesh);
+  // Détails : arcade sourcilière marquée, grand œil en amande, narine, longue ligne de la gueule.
+  const SERPENT_FACE = new Path2D(
+    "M1.35 0.66 C1.7 0.86 2.25 0.86 2.62 0.6 " +
+      "M1.58 0.4 C1.75 0.62 2.15 0.62 2.32 0.38 C2.15 0.24 1.75 0.24 1.58 0.4 Z " +
+      "M3.12 0.3 C3.2 0.36 3.26 0.3 3.22 0.24 " +
+      "M3.38 -0.06 C2.9 -0.16 2.2 -0.22 1.45 -0.26 C1.2 -0.26 1.02 -0.2 0.92 -0.12",
+  );
+
+  // upRef : un point du côté du ventre (le centre de l'anneau, ou un point sous la barre).
+  // options.clip : ne dessine que dans cette zone ; options.cover : couleur de fond posée sous
+  // le serpent (pour qu'il masque l'anneau quand il passe devant) ; options.dim : atténuation.
+  function drawSerpent(ctx, spine, size, time, alpha, color, upRef, options = {}) {
+    const count = spine.length;
+    if (count < 4 || alpha <= 0.01) {
+      return;
+    }
+    // Repère de chaque point : avant (vers la tête) et dos (à l'opposé de upRef).
+    const frames = [];
+    for (let i = 0; i < count; i += 1) {
+      const [ax, ay] = spine[Math.max(0, i - 1)];
+      const [bx, by] = spine[Math.min(count - 1, i + 1)];
+      const length = Math.hypot(ax - bx, ay - by) || 1;
+      const fx = (ax - bx) / length;
+      const fy = (ay - by) / length;
+      let ux = -fy;
+      let uy = fx;
+      if (ux * (spine[i][0] - upRef[0]) + uy * (spine[i][1] - upRef[1]) < 0) {
+        ux = -ux;
+        uy = -uy;
+      }
+      frames.push([fx, fy, ux, uy]);
+    }
+
+    // Corps.
+    const back = [];
+    const belly = [];
+    for (let i = 0; i < count; i += 1) {
+      const [px, py] = spine[i];
+      const [, , ux, uy] = frames[i];
+      const half = size * serpentWidth(i / (count - 1));
+      back.push([px + ux * half, py + uy * half]);
+      belly.push([px - ux * half, py - uy * half]);
+    }
+    const silhouette = new Path2D();
+    back.concat(belly.slice().reverse()).forEach(([px, py], index) => (index ? silhouette.lineTo(px, py) : silhouette.moveTo(px, py)));
+    silhouette.closePath();
+    const [hx, hy] = spine[0];
+    // La tête n'est pas figée dans l'axe du cou : elle tourne et se relève doucement,
+    // comme un serpent qui observe autour de lui.
+    const look = reduce ? 0 : Math.sin(time * 0.0013) * 0.16 + Math.sin(time * 0.0031 + 1.3) * 0.06;
+    const [bfx, bfy, bux, buy] = frames[0];
+    const lookCos = Math.cos(look);
+    const lookSin = Math.sin(look);
+    const hfx = bfx * lookCos + bux * lookSin;
+    const hfy = bfy * lookCos + buy * lookSin;
+    const hux = bux * lookCos - bfx * lookSin;
+    const huy = buy * lookCos - bfy * lookSin;
+    const headScale = size * 1.15;
+    const headMatrix = new DOMMatrix([hfx * headScale, hfy * headScale, hux * headScale, huy * headScale, hx, hy]);
+    silhouette.addPath(SERPENT_HEAD, headMatrix);
+
+    const flicker = reduce ? 1 : 0.84 + 0.12 * Math.sin(time * 0.013) + 0.04 * Math.sin(time * 0.071);
+    const strength = alpha * flicker * (options.dim || 1);
+    const strokeLine = (points) => {
+      ctx.beginPath();
+      points.forEach(([px, py], index) => (index ? ctx.lineTo(px, py) : ctx.moveTo(px, py)));
+      ctx.stroke();
+    };
+    const strokeLocal = (path) => {
+      const outline = new Path2D();
+      outline.addPath(path, headMatrix);
+      ctx.stroke(outline);
+    };
+    const at = (f, u) => [hx + (hfx * f + hux * u) * headScale, hy + (hfy * f + huy * u) * headScale];
+
+    ctx.save();
+    if (options.clip) {
+      ctx.clip(options.clip, "evenodd");
+    }
+    if (options.cover) {
+      ctx.globalAlpha = alpha * 0.85;
+      ctx.fillStyle = options.cover;
+      ctx.fill(silhouette, "nonzero");
+    }
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+
+    // Maillage 3D façon hologramme : le corps est un tube en fil de fer. Des lignes courent
+    // le long du tube et des anneaux le coupent en travers ; la face cachée est plus pâle.
+    ctx.globalAlpha = strength * 0.07;
+    ctx.fill(silhouette, "nonzero");
+    ctx.shadowColor = color;
+    const LONGITUDES = 13;
+    const twist = reduce ? 0 : time * 0.0012; // le maillage glisse doucement le long du corps
     const front = new Path2D();
-    const back = new Path2D();
-
-    // Trace une courbe 3D en rangeant chaque segment devant ou derrière le globe.
-    const trace = (count, pointAt) => {
+    const hidden = new Path2D();
+    for (let k = 0; k < LONGITUDES; k += 1) {
       let previous = null;
-      for (let k = 0; k <= count; k += 1) {
-        const [lat, lon] = pointAt(k / count);
-        const x = Math.cos(lat) * Math.sin(lon + spin);
-        const y = Math.sin(lat);
-        const z = Math.cos(lat) * Math.cos(lon + spin);
-        const point = [cx + x * R, cy - (y * cosT - z * sinT) * R, y * sinT + z * cosT];
+      for (let i = 0; i < count; i += 1) {
+        const angle = (k / LONGITUDES) * Math.PI * 2 + twist;
+        const half = size * serpentWidth(i / (count - 1));
+        const [px, py] = spine[i];
+        const [, , ux, uy] = frames[i];
+        const point = [px + ux * half * Math.cos(angle), py + uy * half * Math.cos(angle), Math.sin(angle)];
         if (previous) {
-          const path = previous[2] + point[2] > 0 ? front : back;
+          const path = previous[2] + point[2] >= 0 ? front : hidden;
           path.moveTo(previous[0], previous[1]);
           path.lineTo(point[0], point[1]);
         }
         previous = point;
       }
+    }
+    // Anneaux : une ellipse vue en perspective tous les deux points.
+    for (let i = 1; i < count - 1; i += 1) {
+      const half = size * serpentWidth(i / (count - 1));
+      if (half < 1.5) {
+        continue;
+      }
+      const [px, py] = spine[i];
+      const [, , ux, uy] = frames[i];
+      const rotation = Math.atan2(uy, ux);
+      const depth = half * 0.32;
+      // Une moitié d'anneau visible, l'autre (la face cachée) plus pâle.
+      front.moveTo(px + ux * half, py + uy * half);
+      front.ellipse(px, py, half, depth, rotation, 0, Math.PI);
+      hidden.moveTo(px - ux * half, py - uy * half);
+      hidden.ellipse(px, py, half, depth, rotation, Math.PI, Math.PI * 2);
+    }
+    ctx.lineWidth = 0.9;
+    ctx.globalAlpha = strength * 0.22;
+    ctx.stroke(hidden);
+    ctx.shadowBlur = 6;
+    ctx.globalAlpha = strength * 0.75;
+    ctx.stroke(front);
+
+    // Contours lumineux, plus marqués.
+    ctx.shadowBlur = 14;
+    ctx.globalAlpha = strength;
+    ctx.lineWidth = 1.4;
+    strokeLine(back);
+    strokeLine(belly);
+    // La tête est posée par-dessus le corps sur un fond plein : la queue qu'il mord et le
+    // reste du corps ne se voient pas à travers.
+    const headArea = new Path2D();
+    headArea.addPath(SERPENT_HEAD, headMatrix);
+    ctx.save();
+    ctx.shadowBlur = 0;
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = pageColor;
+    ctx.fill(headArea);
+    ctx.globalAlpha = strength * 0.12;
+    ctx.fillStyle = color;
+    ctx.fill(headArea);
+    ctx.restore();
+    strokeLocal(SERPENT_HEAD_LINE);
+    ctx.lineWidth = 1;
+    ctx.globalAlpha = strength * 0.8;
+    strokeLocal(SERPENT_MESH);
+    strokeLocal(SERPENT_FACE);
+    ctx.shadowBlur = 0;
+
+    // Œil (pupille en fente) et langue fourchue qui sort par moments.
+    ctx.globalAlpha = strength;
+    ctx.lineWidth = 1.4;
+    const [irisX, irisY] = at(1.95, 0.4);
+    ctx.shadowBlur = 12;
+    ctx.beginPath();
+    ctx.arc(irisX, irisY, Math.max(1.5, size * 0.13), 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    strokeLine([at(1.95, 0.52), at(1.95, 0.28)]);
+    // Langue : sorties rapides et irrégulières, deux petits coups à chaque fois.
+    const tongueCycle = Math.max(0, Math.sin(time * 0.0037) + Math.sin(time * 0.0011) * 0.6 - 0.7);
+    const flick = reduce ? 0 : Math.min(1, tongueCycle * 2.5) * Math.abs(Math.sin(time * 0.02));
+    if (flick > 0.05) {
+      const tip = 3.42 + flick * 1.1;
+      ctx.lineWidth = 1.2;
+      strokeLine([at(3.3, -0.06), at(tip, 0.0)]);
+      strokeLine([at(tip, 0.0), at(tip + 0.32, 0.16)]);
+      strokeLine([at(tip, 0.0), at(tip + 0.32, -0.16)]);
+    }
+    ctx.restore();
+    return silhouette;
+  }
+
+  // Ouroboros : le cercle de l'accueil EST le serpent, qui tourne dans le sens des aiguilles
+  // d'une montre en se mordant la queue.
+  //
+  // Le corps suit un chemin : la tête avance et chaque point du corps passe là où la tête est
+  // passée. Le chemin = la barre de chargement (droite, parcourue vers la gauche), puis, au bout
+  // de la barre, un cercle parcouru dans le sens horaire : depuis le bas, la tête remonte,
+  // fait le tour et revient mordre la queue qui arrive par la barre.
+  const OUROBOROS_POINTS = 150;
+  const INTRO_MS = 2600; // durée de l'enroulement après le chargement
+  const SPIN = 0.00028; // vitesse de rotation sur l'anneau (radians par milliseconde)
+  let intro = null; // { start, from: { x, y, length, size }, radius } pendant l'enroulement
+  let ring = null; // { angle, time } : position de la tête sur l'anneau à un instant donné
+
+  // Longueur du corps sur l'anneau : un tour moins la longueur avalée, pour que le bout de la
+  // queue finisse caché dans la gueule (devant le cou, sous la tête).
+  const ringArc = (radius, size) => Math.PI * 2 - (size * 1.15 * HEAD_LENGTH * 0.55) / radius;
+
+  function serpentOnPath(pointAt, headS, length, size, time) {
+    const spine = [];
+    const t = reduce ? 0 : time;
+    for (let i = 0; i < OUROBOROS_POINTS; i += 1) {
+      const s = i / (OUROBOROS_POINTS - 1);
+      const [x, y, nx, ny] = pointAt(headS - s * length);
+      // Petite ondulation qui parcourt le corps, et un coup de fouet au bout de la queue.
+      const wave =
+        Math.sin(s * Math.PI * 12 - t * 0.004) * size * 0.14 * Math.min(1, s * 5) +
+        Math.sin(s * Math.PI * 20 - t * 0.007) * size * 0.2 * Math.max(0, (s - 0.88) / 0.12);
+      spine.push([x + nx * wave, y + ny * wave]);
+    }
+    return spine;
+  }
+
+  function drawOuroboros(cx, cy, radius, time, alpha) {
+    const size = Math.max(11, radius * 0.085);
+    const elapsed = intro ? time - intro.start : Infinity;
+    if (intro && elapsed < INTRO_MS) {
+      // --- Enroulement : la tête quitte la barre, remonte en tournant et fait le tour. ---
+      const R = intro.radius;
+      const from = intro.from;
+      const u = clamp(elapsed / INTRO_MS, 0, 1);
+      const arc = ringArc(R, size) * R;
+      // La tête démarre doucement, file, puis ralentit jusqu'à la vitesse de croisière.
+      const travel = arc * 1.12;
+      const headS = travel * (1 - Math.pow(1 - u, 2.4));
+      // Le corps s'allonge depuis la queue (encore posée sur la barre) jusqu'à faire le tour.
+      const length = Math.min(arc, from.length + headS * 0.85);
+      const bodySize = lerp(from.size, size, ease(clamp(u * 1.6, 0, 1)));
+      // Le cercle se forme au bout de la barre, puis glisse au centre de l'écran.
+      const slide = ease(clamp((u - 0.35) / 0.65, 0, 1));
+      const centerX = lerp(from.x, cx, slide);
+      const centerY = lerp(from.y - R, cy, slide);
+      const barY = centerY + R;
+      const pointAt = (s) => {
+        if (s <= 0) {
+          // Sur la barre : la tête allait vers la gauche, le corps s'étire vers la droite.
+          return [centerX - s, barY, 0, 1];
+        }
+        const angle = Math.PI / 2 + s / R; // depuis le bas du cercle, sens horaire
+        return [centerX + Math.cos(angle) * R, centerY + Math.sin(angle) * R, Math.cos(angle), Math.sin(angle)];
+      };
+      const spine = serpentOnPath(pointAt, headS, length, bodySize, time);
+      drawSerpent(context, spine, bodySize, time, alpha, accent, [centerX, centerY]);
+      ring = { angle: Math.PI / 2 + headS / R, time };
+      return;
+    }
+    // --- Sur l'anneau : il tourne en se mordant la queue. ---
+    if (!ring) {
+      ring = { angle: -Math.PI / 2, time };
+    }
+    const spun = reduce ? 0 : time - ring.time;
+    // Vitesse irrégulière (il avance, ralentit, repart) ; toutes les variations partent de 0.
+    const headAngle = ring.angle + spun * SPIN + Math.sin(spun * 0.0009) * 0.04;
+    const arcAngle = ringArc(radius, size);
+    const pointAt = (s) => {
+      const angle = headAngle + s; // ici s est un angle
+      return [cx + Math.cos(angle) * radius, cy + Math.sin(angle) * radius, Math.cos(angle), Math.sin(angle)];
     };
+    const spine = serpentOnPath(pointAt, 0, arcAngle, size, time);
+    drawSerpent(context, spine, size, time, alpha, accent, [cx, cy]);
+  }
 
-    for (let m = 0; m < HOLO_MERIDIANS; m += 1) {
-      const lon = (m / HOLO_MERIDIANS) * Math.PI * 2;
-      trace(28, (t) => [(t - 0.5) * Math.PI, lon]);
+  // Serpent de l'écran de chargement : il glisse sur la barre, sa progression = celle du chargement.
+  const loaderCanvas = $(".loader__serpent");
+  let loaderSnake = null; // dernière position du serpent-barre, à l'écran
+  const loaderContext = loaderCanvas?.getContext("2d");
+  function drawLoaderSerpent(progress, time) {
+    if (!loaderContext) {
+      return;
     }
-    HOLO_PARALLELS.forEach((degrees) => {
-      const lat = (degrees * Math.PI) / 180;
-      trace(56, (t) => [lat, t * Math.PI * 2]);
-    });
-
-    // Léger scintillement, comme une projection instable.
-    const flicker = reduce ? 1 : 0.86 + 0.1 * Math.sin(time * 0.013) + 0.04 * Math.sin(time * 0.071);
-    const strength = alpha * flicker;
-
-    context.save();
-    context.lineWidth = 1;
-    context.strokeStyle = accent;
-    context.globalAlpha = strength * 0.14;
-    context.stroke(back);
-    context.shadowColor = accent;
-    context.shadowBlur = 10;
-    context.globalAlpha = strength * 0.5;
-    context.stroke(front);
-    context.shadowBlur = 0;
-
-    // Trame de lignes horizontales et faisceau qui descend.
-    context.beginPath();
-    context.arc(cx, cy, R, 0, Math.PI * 2);
-    context.clip();
-    const gap = Math.max(4, R / 50);
-    context.globalAlpha = strength * 0.07;
-    context.beginPath();
-    for (let y = cy - R; y <= cy + R; y += gap) {
-      context.moveTo(cx - R, y);
-      context.lineTo(cx + R, y);
+    const density = Math.min(2, window.devicePixelRatio || 1);
+    const width = loaderCanvas.clientWidth;
+    const height = loaderCanvas.clientHeight;
+    if (loaderCanvas.width !== Math.round(width * density)) {
+      loaderCanvas.width = Math.round(width * density);
+      loaderCanvas.height = Math.round(height * density);
     }
-    context.stroke();
-    if (!reduce) {
-      const beamY = cy - R + ((time * 0.00022) % 1) * 2 * R;
-      const beam = context.createLinearGradient(0, beamY - R * 0.22, 0, beamY);
-      beam.addColorStop(0, `rgba(${accentRgb},0)`);
-      beam.addColorStop(1, `rgba(${accentRgb},0.32)`);
-      context.globalAlpha = strength;
-      context.fillStyle = beam;
-      context.fillRect(cx - R, beamY - R * 0.22, R * 2, R * 0.22);
+    const ctx = loaderContext;
+    ctx.setTransform(density, 0, 0, density, 0, 0);
+    ctx.clearRect(0, 0, width, height);
+    // Le serpent EST la barre de chargement : sa queue reste fixée à droite et il s'allonge
+    // vers la gauche à mesure que le site charge (0 % = minuscule, 100 % = toute la largeur).
+    // Arrivé au bout, il remontera en tournant pour former le cercle de l'accueil.
+    const size = Math.max(7, Math.min(11, width / 40));
+    const headLength = size * 1.15 * HEAD_LENGTH;
+    const right = width - 8;
+    const left = headLength + 8;
+    const barY = height * 0.5;
+    const headX = right - size * 3 - (right - left - size * 3) * progress;
+    const bodyLength = right - headX;
+
+    const POINTS = 80;
+    const spine = [];
+    for (let i = 0; i < POINTS; i += 1) {
+      const s = i / (POINTS - 1);
+      const x = headX + s * bodyLength;
+      // Une ondulation légère parcourt le corps : la barre reste lisible mais vit.
+      const wave = Math.sin(x * 0.045 - time * 0.006) * size * 0.32 * Math.min(1, s * 6);
+      const flick = Math.sin(s * Math.PI * 10 - time * 0.012) * size * 0.3 * Math.max(0, (s - 0.85) / 0.15);
+      spine.push([x, barY + wave + flick]);
     }
-    context.restore();
+    const rect = loaderCanvas.getBoundingClientRect();
+    loaderSnake = { x: rect.left + headX, y: rect.top + barY, length: bodyLength, size };
+    ctx.save();
+    drawSerpent(ctx, spine, size, time, 1, accent, [headX, height * 4]);
+    ctx.restore();
   }
 
   function drawHive(time, heroP, velocity) {
@@ -669,40 +967,17 @@
     context.strokeStyle = `rgba(${accentRgb},0.8)`;
     context.stroke(core);
 
-    // Grand anneau doré de l'accueil : on le traverse en défilant.
+    // Le serpent qui se mord la queue forme le grand cercle de l'accueil ; on le traverse en défilant.
     if (heroP < 0.999) {
       const cx = W / 2;
       const cy = H / 2;
       const radius = lerp(Math.min(W, H) * 0.3, Math.max(W, H) * 0.95, p);
       const alpha = 1 - heroP;
+      // Pendant le chargement, le serpent est encore sur la barre (dans l'écran de chargement).
+      if (!root.classList.contains("js-loading") || intro) {
+        drawOuroboros(cx, cy, radius, time, alpha);
+      }
       context.save();
-      context.globalAlpha = alpha * 0.85;
-      context.strokeStyle = accent;
-      context.lineWidth = 1.2;
-      context.shadowColor = accent;
-      context.shadowBlur = 22;
-      context.beginPath();
-      context.arc(cx, cy, radius, 0, Math.PI * 2);
-      context.stroke();
-      context.shadowBlur = 0;
-      context.globalAlpha = alpha * 0.35;
-      context.lineWidth = 1;
-      context.beginPath();
-      context.arc(cx, cy, radius * 0.9, 0, Math.PI * 2);
-      context.stroke();
-      // Un arc plus épais qui tourne, terminé par un point lumineux.
-      const angle = time * 0.00035;
-      context.globalAlpha = alpha;
-      context.lineWidth = 2.4;
-      context.beginPath();
-      context.arc(cx, cy, radius, angle, angle + 0.85);
-      context.stroke();
-      context.fillStyle = accent;
-      context.beginPath();
-      context.arc(cx + radius * Math.cos(angle + 0.85), cy + radius * Math.sin(angle + 0.85), 4, 0, Math.PI * 2);
-      context.fill();
-      drawHologram(cx, cy, radius * 0.74, time, alpha);
-      context.shadowBlur = 0;
       const glow = context.createRadialGradient(cx, cy, 0, cx, cy, radius);
       glow.addColorStop(0, `rgba(${accentRgb},0)`);
       glow.addColorStop(1, `rgba(${accentRgb},0.5)`);
@@ -861,13 +1136,6 @@
       });
     }
 
-    // Curseur.
-    if (cursor && fine && !reduce) {
-      cursorX = lerp(cursorX, cursorTargetX, 0.2);
-      cursorY = lerp(cursorY, cursorTargetY, 0.2);
-      cursor.style.transform = `translate(${cursorX.toFixed(1)}px, ${cursorY.toFixed(1)}px)`;
-    }
-
     // Ruche.
     if (!reduce) {
       drawHive(now, heroP, velocity);
@@ -907,7 +1175,8 @@
     drawHive(0, 0, 0);
   }
 
-  // Intro d'ouverture : une alvéole se dessine, puis on zoome dedans.
+  // Intro d'ouverture : le monogramme se dessine, le serpent-barre se remplit, puis il
+  // s'enroule pour devenir le cercle de l'accueil.
   const loader = $(".loader");
   const scrollCue = $(".scroll-cue");
   function openSite() {
@@ -925,21 +1194,28 @@
       loaded = true;
     });
     const step = (now) => {
-      const t = clamp((now - startedAt) / 2100, 0, 1);
+      const t = clamp((now - startedAt) / 4600, 0, 1); // durée du chargement : 4,6 s
       const value = ease(t);
       count.textContent = String(Math.round(value * 100)).padStart(3, "0");
       loader.style.setProperty("--lp", value.toFixed(3));
+      drawLoaderSerpent(value, now);
       if (t < 1 || !loaded) {
         requestAnimationFrame(step);
         return;
       }
-      loader.classList.add("is-done");
+      // Le fond de l'écran de chargement s'efface ; le serpent passe sur le canvas de l'accueil,
+      // exactement au même endroit, puis s'enroule jusqu'à se mordre la queue.
+      if (loaderSnake) {
+        intro = { start: performance.now(), from: loaderSnake, radius: Math.min(W, H) * 0.3 };
+      }
+      loader.classList.add("is-handoff");
       try {
         sessionStorage.setItem("hakim-intro", "1");
       } catch (error) {
         /* stockage indisponible : l'intro se rejouera, sans gravité */
       }
-      setTimeout(openSite, 700);
+      // L'accueil (titre, textes, boutons) apparaît quand le cercle est presque refermé.
+      setTimeout(openSite, INTRO_MS * 0.72);
     };
     requestAnimationFrame(step);
   } else {

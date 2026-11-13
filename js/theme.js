@@ -8,12 +8,9 @@ if (themeToggle) {
   const themeColor = document.querySelector('meta[name="theme-color"]');
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const INK = { light: "#f6f5f1", dark: "#0a0907" };
-  const DURATION = 1700; // durée de l'étalement, en millisecondes
-  const GOO_SCALE = 0.5; // le calque liquide est calculé en demi-résolution (plus rapide)
-  const GOO_BLUR = 6; // flou avant seuil : plus il est fort, plus les gouttes fusionnent
+  const DURATION = 2000; // durée de l'animation, en millisecondes
   let theme = root.dataset.theme === "light" ? "light" : "dark";
   let switching = false;
-  let layer = null;
 
   function applyTheme(nextTheme) {
     theme = nextTheme;
@@ -27,119 +24,123 @@ if (themeToggle) {
 
   applyTheme(theme);
 
-  /* ---------------------------------------------------------------- */
-  /* Calque d'encre : créé au premier clic, réutilisé ensuite          */
-  /* ---------------------------------------------------------------- */
-  function buildLayer() {
-    const style = document.createElement("style");
-    style.textContent = `
-      .ink { position: fixed; inset: 0; z-index: 400; overflow: hidden; pointer-events: none; opacity: 1; }
-      .ink[hidden] { display: none; }
-      .ink.is-leaving { opacity: 0; transition: opacity 0.45s ease; }
-      .ink canvas { position: absolute; top: 0; left: 0; display: block; }
-      .ink__goo, .ink__crisp { width: 100%; height: 100%; }
-    `;
-    document.head.append(style);
-
-    const element = document.createElement("div");
-    element.className = "ink";
-    element.hidden = true;
-    element.setAttribute("aria-hidden", "true");
-    element.innerHTML = `<canvas class="ink__goo"></canvas><canvas class="ink__crisp"></canvas>`;
-    document.body.append(element);
-    // Effet liquide : les formes sont floutées sur un calque caché, puis on ne garde que les
-    // pixels assez opaques (seuil). Les gouttes proches fusionnent ainsi comme de l'encre.
-    const blurCanvas = document.createElement("canvas");
-    return {
-      element,
-      goo: element.querySelector(".ink__goo"),
-      crisp: element.querySelector(".ink__crisp"),
-      blur: blurCanvas,
-      blurContext: blurCanvas.getContext("2d", { willReadFrequently: true }),
-    };
-  }
-
   const random = (min, max) => min + Math.random() * (max - min);
   const clamp01 = (value) => Math.min(1, Math.max(0, value));
   const easeOutBack = (t) => 1 + 2.4 * Math.pow(t - 1, 3) + 1.4 * Math.pow(t - 1, 2);
+  const easeOut = (t) => 1 - Math.pow(1 - t, 3);
   const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
-  // Tire au hasard la forme de l'éclaboussure : elle est différente à chaque clic.
+  /* ---------------------------------------------------------------- */
+  /* Forme de l'éclaboussure (tirée au hasard à chaque clic)           */
+  /* ---------------------------------------------------------------- */
   function buildSplat(x, y, width, height) {
     const reach = Math.hypot(Math.max(x, width - x), Math.max(y, height - y));
-    // Corps de la tache : un cœur, un second gros lobe décentré, des bosses sur le pourtour.
+    // Corps : un cœur et un second gros lobe décentré.
     const lobes = [{ angle: 0, distance: 0, size: 1, phase: 0 }];
-    lobes.push({ angle: random(0, Math.PI * 2), distance: random(0.62, 0.8), size: random(0.52, 0.66), phase: random(0, 6) });
-    for (let i = 0; i < 9; i += 1) {
-      lobes.push({ angle: random(0, Math.PI * 2), distance: random(0.72, 0.98), size: random(0.2, 0.42), phase: random(0, 6) });
+    // Chaque lobe avance à son rythme : le contour se déforme pendant que l'encre coule.
+    lobes.push({ angle: random(0, Math.PI * 2), distance: random(0.55, 0.72), size: random(0.5, 0.62), grow: random(1, 1.5), phase: random(0, 6) });
+    for (let i = 0; i < 6; i += 1) {
+      lobes.push({ angle: random(0, Math.PI * 2), distance: random(0.7, 0.9), size: random(0.24, 0.4), grow: random(0.7, 1.7), phase: random(0, 6) });
     }
-    // Giclures fines qui rayonnent autour du corps.
-    const spikes = Array.from({ length: 84 }, () => ({
-      angle: random(0, Math.PI * 2),
-      length: 0.1 + Math.pow(Math.random(), 2.2) * 0.62,
-      width: random(0.012, 0.045),
-      bead: Math.random() < 0.45 ? random(0.012, 0.03) : 0,
+    // Bourrelets : petites bosses tout autour, qui rendent le bord irrégulier et « coulant ».
+    const bumps = Array.from({ length: 22 }, (_, index) => ({
+      angle: ((index + random(-0.35, 0.35)) / 22) * Math.PI * 2,
+      out: random(0, 0.2),
+      size: random(0.05, 0.16),
+      phase: random(0, 6),
     }));
-    // Grosses gouttes retombées à distance : elles grossissent puis rejoignent la tache.
-    const drops = Array.from({ length: 16 }, () => {
-      const angle = random(0, Math.PI * 2);
-      const distance = reach * random(0.22, 0.95);
-      return {
-        x: x + Math.cos(angle) * distance,
-        y: y + Math.sin(angle) * distance,
-        size: reach * random(0.012, 0.045),
-        delay: random(0.04, 0.3),
-        phase: random(0, 6),
-      };
-    });
-    // Mouchetures : des centaines de points minuscules, plus denses près de l'impact.
-    const count = Math.round(Math.min(420, (width * height) / 3600));
+    // Filets : des traînées projetées à l'impact, qui retombent et restent sur place
+    // (l'encre du corps les recouvre ensuite). Elles s'effilent et lâchent une gouttelette.
+    // Les filets partent surtout vers l'intérieur de l'écran (le bouton est dans un coin).
+    const inward = Math.atan2(height / 2 - y, width / 2 - x);
+    const arms = Array.from({ length: 11 }, (_, index) => ({
+      angle: inward + ((index + random(-0.35, 0.35)) / 11 - 0.5) * Math.PI * 1.7,
+      reach: reach * random(0.26, 0.5),
+      width: reach * random(0.007, 0.014),
+      bend: random(-0.28, 0.28),
+      wave: random(-0.05, 0.05),
+      drop: random(0.5, 0.9),
+      gap: random(0.6, 2.2),
+      delay: random(0, 0.04),
+      round: false,
+    }));
+    // Coulures courtes et rondes entre les filets.
+    const stubs = Array.from({ length: 14 }, () => ({
+      angle: random(0, Math.PI * 2),
+      reach: reach * random(0.2, 0.26),
+      width: reach * random(0.012, 0.022),
+      bend: random(-0.2, 0.2),
+      wave: 0,
+      drop: 0,
+      gap: 0,
+      delay: random(0.02, 0.08),
+      round: true,
+    }));
+    // Gouttes projetées loin : elles partent du centre, retombent, puis la tache les rejoint.
+    const drops = Array.from({ length: 12 }, () => ({
+      angle: random(0, Math.PI * 2),
+      distance: reach * random(0.26, 0.85),
+      size: reach * random(0.008, 0.026),
+      delay: random(0, 0.05),
+      phase: random(0, 6),
+    }));
+    // Mouchetures : des petits points, plus denses près de l'impact.
+    const count = Math.round(Math.min(180, (width * height) / 8000));
     const specks = Array.from({ length: count }, () => {
       const angle = random(0, Math.PI * 2);
-      const distance = reach * Math.pow(Math.random(), 0.75) * 1.05;
+      const distance = reach * (0.12 + Math.pow(Math.random(), 0.9) * 0.85);
       return {
         x: x + Math.cos(angle) * distance,
         y: y + Math.sin(angle) * distance,
-        size: 0.6 + Math.pow(Math.random(), 3) * 4.2,
-        delay: 0.03 + (distance / reach) * 0.22 + random(0, 0.08),
+        size: 0.8 + Math.pow(Math.random(), 3) * 5,
+        delay: 0.02 + (distance / reach) * 0.12 + random(0, 0.05),
       };
     });
-    return { x, y, reach, lobes, spikes, drops, specks };
+    return { x, y, reach, lobes, bumps, arms, stubs, drops, specks };
   }
 
-  /* ---------------------------------------------------------------- */
-  /* Version principale : l'encre « découpe » le nouveau thème          */
-  /* ---------------------------------------------------------------- */
-  // Le navigateur photographie la page avant/après (View Transitions). La photo « après »
-  // n'est visible qu'à l'intérieur de la tache : on voit donc le vrai site dans l'encre.
-  // La tache est un champ de « métaballes » (les gouttes proches fusionnent comme un
-  // liquide), dont on trace le contour (marching squares) pour en faire un clip-path.
+  // Instant de l'impact : jaillissement sec, puis étalement qui ralentit (comme un liquide).
+  const IMPACT = 0.1;
+  const HOLD = 0.3;
+  const impactRadius = (splat) => splat.reach * 0.16;
 
+  // État de la tache à l'instant t (0 → 1) : rayon et « métaballes » qui forment le corps.
   function inkState(splat, t, now) {
     const { x, y, reach } = splat;
-    const burst = easeOutBack(clamp01(t / 0.2)) * 0.19;
-    const creep = clamp01((t - 0.2) / 0.34) * 0.05;
-    const flood = easeInOut(clamp01((t - 0.5) / 0.5));
-    const radius = reach * (burst + creep + flood * 1.0);
+    // 1) impact sec (0 → 10 %), 2) la tache se pose et frémit (10 → 30 %),
+    // 3) elle s'étale vite puis de plus en plus lentement jusqu'à couvrir la page.
+    const burst = easeOutBack(clamp01(t / IMPACT)) * 0.16 + clamp01((t - IMPACT) / (HOLD - IMPACT)) * 0.03;
+    const spread = 1 - Math.pow(1 - clamp01((t - HOLD) / (1 - HOLD)), 2.2);
+    const radius = reach * (burst + spread * 0.98);
     const balls = [];
     splat.lobes.forEach((lobe) => {
-      const wobble = 1 + 0.07 * Math.sin(now * 0.006 + lobe.phase);
-      const distance = radius * lobe.distance * (1 - flood * 0.5);
-      const size = radius * (lobe.size + (1 - lobe.size) * flood * 0.6) * (lobe.distance ? wobble : 1);
+      const wobble = lobe.distance ? 1 + 0.05 * Math.sin(now * 0.005 + lobe.phase) : 1;
+      const distance = radius * lobe.distance * (1 - 0.4 * spread);
+      const size = radius * lobe.size * Math.pow(lobe.grow || 1, spread) * wobble;
       balls.push([x + Math.cos(lobe.angle) * distance, y + Math.sin(lobe.angle) * distance, size]);
     });
+    splat.bumps.forEach((bump) => {
+      const distance = radius * (0.92 + bump.out + 0.03 * Math.sin(now * 0.007 + bump.phase));
+      balls.push([x + Math.cos(bump.angle) * distance, y + Math.sin(bump.angle) * distance, radius * bump.size]);
+    });
     splat.drops.forEach((drop) => {
-      const pop = easeOutBack(clamp01((t - drop.delay) / 0.14));
-      if (pop > 0) {
-        const size = drop.size * pop * (1 + flood * 7) * (1 + 0.08 * Math.sin(now * 0.008 + drop.phase));
-        balls.push([drop.x, drop.y, size]);
+      // La goutte vole du centre jusqu'à son point de chute, puis s'élargit un peu en s'écrasant.
+      const flight = easeOut(clamp01((t - drop.delay) / 0.2));
+      if (flight > 0) {
+        const landed = clamp01((t - drop.delay - 0.2) / 0.1);
+        const size = drop.size * (0.6 + 0.4 * flight) * (1 + 0.35 * landed + spread * 2) * (1 + 0.05 * Math.sin(now * 0.008 + drop.phase));
+        const distance = drop.distance * flight;
+        balls.push([x + Math.cos(drop.angle) * distance, y + Math.sin(drop.angle) * distance, size]);
       }
     });
-    return { radius, flood, spikeGrow: clamp01(t / 0.16), balls };
+    return { radius, flood: spread, balls };
   }
 
+  /* ---------------------------------------------------------------- */
+  /* Tracé : contour liquide (métaballes) + filets + gouttelettes      */
+  /* ---------------------------------------------------------------- */
   const fmt = (value) => Math.round(value * 10) / 10;
-  // Cercle orienté dans le sens horaire (même sens que le contour : les formes s'additionnent).
+  // Cercle orienté dans le sens horaire (même sens que le reste : les formes s'additionnent).
   const circlePath = (cx, cy, r) =>
     `M${fmt(cx + r)} ${fmt(cy)}A${fmt(r)} ${fmt(r)} 0 1 1 ${fmt(cx - r)} ${fmt(cy)}A${fmt(r)} ${fmt(r)} 0 1 1 ${fmt(cx + r)} ${fmt(cy)}Z`;
   const polygonPath = (points) => {
@@ -153,10 +154,12 @@ if (themeToggle) {
     return "M" + list.map(([px, py]) => `${fmt(px)} ${fmt(py)}`).join("L") + "Z";
   };
 
-  // Contour du champ de métaballes : renvoie des boucles fermées, sens horaire.
+  // Contour du champ de métaballes (marching squares) : boucles fermées [x0, y0, x1, y1, …].
   function metaballContour(balls, width, height) {
     // Grille de calcul : une maille de 8 à 10 px suffit, le contour est interpolé entre les nœuds.
     const cell = Math.max(8, Math.round(Math.max(width, height) / 160));
+    const nx = Math.ceil(width / cell) + 3;
+    const ny = Math.ceil(height / cell) + 3;
     const count = balls.length;
     const bx = new Float32Array(count);
     const by = new Float32Array(count);
@@ -166,16 +169,11 @@ if (themeToggle) {
       by[k] = cy;
       br2[k] = r * r;
     });
-    const nx = Math.ceil(width / cell) + 3;
-    const ny = Math.ceil(height / cell) + 3;
     const field = new Float32Array(nx * ny);
-    for (let j = 0; j < ny; j += 1) {
+    for (let j = 1; j < ny - 1; j += 1) {
       const py = (j - 1) * cell;
-      for (let i = 0; i < nx; i += 1) {
-        // Bordure forcée à zéro : quand la page est couverte, le contour fait le tour de l'écran.
-        if (i === 0 || j === 0 || i === nx - 1 || j === ny - 1) {
-          continue;
-        }
+      for (let i = 1; i < nx - 1; i += 1) {
+        // La bordure reste à zéro : quand la page est couverte, le contour fait le tour de l'écran.
         const px = (i - 1) * cell;
         let sum = 0;
         for (let k = 0; k < count; k += 1) {
@@ -190,7 +188,6 @@ if (themeToggle) {
       }
     }
 
-    // Point de passage sur une arête (interpolé là où le champ vaut exactement 1).
     // Arête n° k : 2 × (nœud de départ) + 0 pour l'horizontale, + 1 pour la verticale.
     const edges = 2 * nx * ny;
     const pointX = new Float32Array(edges);
@@ -264,10 +261,60 @@ if (themeToggle) {
     return loops;
   }
 
-  function inkPath(splat, t, now, width, height) {
+  // Filet d'encre : un ruban légèrement courbe, large à la base, qui s'effile jusqu'à une pointe
+  // fine (ou s'arrondit pour une coulure courte), avec une gouttelette détachée au bout.
+  function armPath(cx, cy, arm, start, end) {
+    const length = end - start;
+    if (length < 3) {
+      return "";
+    }
+    const cos = Math.cos(arm.angle);
+    const sin = Math.sin(arm.angle);
+    const STEPS = 12;
+    const center = [];
+    for (let k = 0; k <= STEPS; k += 1) {
+      const s = k / STEPS;
+      const along = start + length * s;
+      // La courbure dépend de la distance au centre : le filet ne « tourne » pas quand il raccourcit.
+      // Courbe douce + petite ondulation : un filet d'encre n'est jamais rectiligne.
+      const side = arm.bend * (along * along) / (arm.reach * 2.2) + arm.wave * arm.reach * Math.sin((along / arm.reach) * Math.PI * 2.4);
+      center.push([cx + cos * along - sin * side, cy + sin * along + cos * side]);
+    }
+    const thickness = arm.width * Math.min(1, length / (arm.width * 3));
+    const left = [];
+    const right = [];
+    for (let k = 0; k <= STEPS; k += 1) {
+      const s = k / STEPS;
+      const [px, py] = center[k];
+      const [ax, ay] = center[Math.max(0, k - 1)];
+      const [bx, by] = center[Math.min(STEPS, k + 1)];
+      const tx = bx - ax;
+      const ty = by - ay;
+      const norm = Math.hypot(tx, ty) || 1;
+      const half = arm.round
+        ? thickness * (0.62 + 0.38 * Math.pow(1 - s, 1.5))
+        : thickness * (0.24 + 0.76 * Math.pow(1 - s, 1.4) + 0.2 * Math.pow(s, 6));
+      left.push([px - (ty / norm) * half, py + (tx / norm) * half]);
+      right.push([px + (ty / norm) * half, py - (tx / norm) * half]);
+    }
+    const [ex, ey] = center[STEPS];
+    let d = polygonPath(left.concat(right.reverse()));
+    if (arm.round) {
+      d += circlePath(ex, ey, thickness * 0.62);
+    } else if (arm.drop) {
+      // Bout du filet gonflé en goutte, et une gouttelette détachée un peu plus loin.
+      d += circlePath(ex, ey, thickness * 0.5);
+      const at = end + arm.width * (1.2 + arm.gap);
+      const side = arm.bend * (at * at) / (arm.reach * 2.2) + arm.wave * arm.reach * Math.sin((at / arm.reach) * Math.PI * 2.4);
+      d += circlePath(cx + cos * at - sin * side, cy + sin * at + cos * side, arm.width * arm.drop * 0.7);
+    }
+    return d;
+  }
+
+  function inkShape(splat, t, now, width, height) {
     const { x, y } = splat;
     const state = inkState(splat, t, now);
-    const { radius, flood, spikeGrow } = state;
+    const { radius, flood } = state;
     // Un seul sens pour toutes les boucles du contour (les trous éventuels gardent le sens inverse).
     const loops = metaballContour(state.balls, width, height);
     let area = 0;
@@ -288,56 +335,53 @@ if (themeToggle) {
       }
       parts.push(text + "Z");
     });
-    let d = parts.join("");
-
-    // Bord réel de la tache dans une direction : les gouttes fusionnées la rendent plus large
-    // que son rayon, donc on le cherche en avançant le long du rayon.
-    const fieldAt = (px, py) => {
-      let sum = 0;
-      state.balls.forEach(([bx, by, br]) => {
-        const dx = px - bx;
-        const dy = py - by;
-        sum += (br * br) / (dx * dx + dy * dy + 1e-3);
-      });
-      return sum;
-    };
-    const edgeAlong = (cos, sin) => {
-      let distance = radius * 0.5;
-      const stepSize = Math.max(2, radius * 0.04);
-      while (distance < radius * 3 && fieldAt(x + cos * distance, y + sin * distance) >= 1) {
-        distance += stepSize;
-      }
-      return distance;
-    };
 
     if (flood < 0.98) {
-      splat.spikes.forEach((spike) => {
-        const cos = Math.cos(spike.angle);
-        const sin = Math.sin(spike.angle);
-        const edge = edgeAlong(cos, sin);
-        const base = edge - radius * 0.12;
-        const tip = edge + radius * spike.length * spikeGrow * (1 - flood * 0.7);
-        const half = radius * spike.width;
-        d += polygonPath([
-          [x + cos * base - sin * half, y + sin * base + cos * half],
-          [x + cos * tip, y + sin * tip],
-          [x + cos * base + sin * half, y + sin * base - cos * half],
-        ]);
-        if (spike.bead) {
-          const beadAt = tip + radius * 0.035;
-          d += circlePath(x + cos * beadAt, y + sin * beadAt, Math.max(0.5, radius * spike.bead * spikeGrow));
+      // Bord réel de la tache dans une direction (les gouttes fusionnées l'élargissent).
+      const fieldAt = (px, py) => {
+        let sum = 0;
+        state.balls.forEach(([bx, by, br]) => {
+          const dx = px - bx;
+          const dy = py - by;
+          sum += (br * br) / (dx * dx + dy * dy + 1e-3);
+        });
+        return sum;
+      };
+      const edgeAlong = (cos, sin) => {
+        let distance = radius * 0.5;
+        const stepSize = Math.max(2, radius * 0.04);
+        while (distance < radius * 3 && fieldAt(x + cos * distance, y + sin * distance) >= 1) {
+          distance += stepSize;
         }
-      });
+        return distance;
+      };
+      // Les filets jaillissent à l'impact puis restent posés : leur pointe ne bouge plus et
+      // le corps de la tache, en s'étalant, les recouvre petit à petit.
+      const drawArm = (arm) => {
+        const shot = easeOut(clamp01((t - arm.delay) / 0.14));
+        const tip = impactRadius(splat) * 0.7 + (arm.reach - impactRadius(splat) * 0.7) * shot;
+        const edge = edgeAlong(Math.cos(arm.angle), Math.sin(arm.angle));
+        if (shot > 0 && tip > edge - arm.width) {
+          parts.push(armPath(x, y, arm, Math.max(edge - arm.width * 2, 0), tip));
+        }
+      };
+      splat.arms.forEach(drawArm);
+      splat.stubs.forEach(drawArm);
       splat.specks.forEach((speck) => {
         const pop = clamp01((t - speck.delay) / 0.06);
         if (pop > 0) {
-          d += circlePath(speck.x, speck.y, speck.size * pop * (1 + flood * 2.5));
+          parts.push(circlePath(speck.x, speck.y, speck.size * pop * (1 + flood * 1.5)));
         }
       });
     }
-    return d ? `path(nonzero, "${d}")` : "inset(0 0 100% 0)";
+    return parts.join("");
   }
 
+  /* ---------------------------------------------------------------- */
+  /* Version principale : l'encre « découpe » le nouveau thème          */
+  /* ---------------------------------------------------------------- */
+  // Le navigateur photographie la page avant/après (View Transitions). La photo « après »
+  // n'est visible qu'à l'intérieur de la tache : on voit donc le vrai site dans l'encre.
   let transitionStyle = null;
   function viewTransitionSwitch(nextTheme) {
     if (!transitionStyle) {
@@ -353,12 +397,13 @@ if (themeToggle) {
     const height = window.innerHeight;
     const rect = themeToggle.getBoundingClientRect();
     const splat = buildSplat(rect.left + rect.width / 2, rect.top + rect.height / 2, width, height);
+    const clip = (d) => (d ? `path(nonzero, "${d}")` : "inset(0 0 100% 0)");
 
     switching = true;
     const transition = document.startViewTransition(() => applyTheme(nextTheme));
     transition.ready
       .then(() => {
-        const first = inkPath(splat, 0, performance.now(), width, height);
+        const first = clip(inkShape(splat, 0, performance.now(), width, height));
         const animation = root.animate(
           { clipPath: [first, first] },
           { duration: DURATION + 1000, fill: "forwards", pseudoElement: "::view-transition-new(root)" },
@@ -370,7 +415,7 @@ if (themeToggle) {
             animation.finish();
             return;
           }
-          const shape = inkPath(splat, t, now, width, height);
+          const shape = clip(inkShape(splat, t, now, width, height));
           animation.effect.setKeyframes({ clipPath: [shape, shape] });
           requestAnimationFrame(step);
         };
@@ -382,131 +427,48 @@ if (themeToggle) {
     });
   }
 
-  // Seuil appliqué au calque flouté : opaque au-dessus de 50 %, avec une marge douce
-  // de quelques niveaux pour garder des bords lissés.
-  function threshold(source, target, rgb) {
-    const image = source.getImageData(0, 0, source.canvas.width, source.canvas.height);
-    const data = image.data;
-    for (let i = 0; i < data.length; i += 4) {
-      const alpha = (data[i + 3] - 118) * 14;
-      data[i] = rgb[0];
-      data[i + 1] = rgb[1];
-      data[i + 2] = rgb[2];
-      data[i + 3] = alpha < 0 ? 0 : alpha > 255 ? 255 : alpha;
+  /* ---------------------------------------------------------------- */
+  /* Navigateurs plus anciens : la tache est peinte en aplat           */
+  /* ---------------------------------------------------------------- */
+  let layer = null;
+  function canvasSwitch(nextTheme) {
+    if (!layer) {
+      layer = document.createElement("canvas");
+      layer.setAttribute("aria-hidden", "true");
+      layer.style.cssText =
+        "position:fixed;inset:0;z-index:400;width:100%;height:100%;pointer-events:none;transition:opacity .45s ease";
+      document.body.append(layer);
     }
-    target.putImageData(image, 0, 0);
-  }
-
-  function drawSplat(splat, t, now, gooContext, crispContext, width, height, color) {
-    const { x, y, reach } = splat;
-    // Trois temps : l'impact (jaillissement), une lente coulée, puis l'inondation de la page.
-    const burst = easeOutBack(clamp01(t / 0.2)) * 0.19;
-    const creep = clamp01((t - 0.2) / 0.34) * 0.05;
-    const flood = easeInOut(clamp01((t - 0.5) / 0.5));
-    const radius = reach * (burst + creep + flood * 1.0);
-
-    const blurContext = layer.blurContext;
-    blurContext.setTransform(1, 0, 0, 1, 0, 0);
-    blurContext.filter = "none";
-    blurContext.clearRect(0, 0, layer.blur.width, layer.blur.height);
-    blurContext.filter = `blur(${GOO_BLUR}px)`;
-    blurContext.setTransform(GOO_SCALE, 0, 0, GOO_SCALE, 0, 0);
-    blurContext.fillStyle = color;
-    blurContext.beginPath();
-    const gooPath = blurContext;
-    splat.lobes.forEach((lobe) => {
-      // Les lobes ondulent légèrement : c'est ce qui donne l'impression de liquide.
-      const wobble = 1 + 0.07 * Math.sin(now * 0.006 + lobe.phase);
-      const distance = radius * lobe.distance * (1 - flood * 0.5);
-      const cx = x + Math.cos(lobe.angle) * distance;
-      const cy = y + Math.sin(lobe.angle) * distance;
-      const size = radius * (lobe.size + (1 - lobe.size) * flood * 0.6) * (lobe.distance ? wobble : 1);
-      gooPath.moveTo(cx + size, cy);
-      gooPath.arc(cx, cy, size, 0, Math.PI * 2);
-    });
-    splat.drops.forEach((drop) => {
-      const pop = easeOutBack(clamp01((t - drop.delay) / 0.14));
-      if (pop <= 0) {
-        return;
-      }
-      const size = drop.size * pop * (1 + flood * 7) * (1 + 0.08 * Math.sin(now * 0.008 + drop.phase));
-      gooPath.moveTo(drop.x + size, drop.y);
-      gooPath.arc(drop.x, drop.y, size, 0, Math.PI * 2);
-    });
-    gooPath.fill();
-    threshold(blurContext, gooContext, splat.rgb);
-
-    // Détails nets (hors filtre) : giclures et mouchetures.
-    crispContext.clearRect(0, 0, width, height);
-    crispContext.fillStyle = color;
-    crispContext.beginPath();
-    const spikeGrow = clamp01(t / 0.16);
-    splat.spikes.forEach((spike) => {
-      const cos = Math.cos(spike.angle);
-      const sin = Math.sin(spike.angle);
-      const base = radius * 0.86;
-      const tip = radius * (1 + spike.length * spikeGrow * (1 - flood * 0.7));
-      const half = radius * spike.width;
-      crispContext.moveTo(x + cos * base - sin * half, y + sin * base + cos * half);
-      crispContext.lineTo(x + cos * tip, y + sin * tip);
-      crispContext.lineTo(x + cos * base + sin * half, y + sin * base - cos * half);
-      if (spike.bead) {
-        const beadAt = tip + radius * 0.035;
-        const beadSize = radius * spike.bead * spikeGrow;
-        crispContext.moveTo(x + cos * beadAt + beadSize, y + sin * beadAt);
-        crispContext.arc(x + cos * beadAt, y + sin * beadAt, beadSize, 0, Math.PI * 2);
-      }
-    });
-    splat.specks.forEach((speck) => {
-      const pop = clamp01((t - speck.delay) / 0.06);
-      if (pop <= 0) {
-        return;
-      }
-      const size = speck.size * pop * (1 + flood * 2.5);
-      crispContext.moveTo(speck.x + size, speck.y);
-      crispContext.arc(speck.x, speck.y, size, 0, Math.PI * 2);
-    });
-    crispContext.fill();
-  }
-
-  function inkSwitch(nextTheme) {
-    layer = layer || buildLayer();
     const width = window.innerWidth;
     const height = window.innerHeight;
     const density = Math.min(2, window.devicePixelRatio || 1);
     const rect = themeToggle.getBoundingClientRect();
     const splat = buildSplat(rect.left + rect.width / 2, rect.top + rect.height / 2, width, height);
-    const color = INK[nextTheme];
-    const gooContext = layer.goo.getContext("2d");
-    const crispContext = layer.crisp.getContext("2d");
-
-    layer.goo.width = layer.blur.width = Math.ceil(width * GOO_SCALE);
-    layer.goo.height = layer.blur.height = Math.ceil(height * GOO_SCALE);
-    const hex = color.slice(1);
-    splat.rgb = [0, 2, 4].map((index) => parseInt(hex.slice(index, index + 2), 16));
-    layer.crisp.width = Math.round(width * density);
-    layer.crisp.height = Math.round(height * density);
-    crispContext.setTransform(density, 0, 0, density, 0, 0);
-    layer.element.classList.remove("is-leaving");
-    layer.element.hidden = false;
+    const context = layer.getContext("2d");
+    layer.width = Math.round(width * density);
+    layer.height = Math.round(height * density);
+    layer.style.opacity = "1";
+    layer.hidden = false;
+    context.setTransform(density, 0, 0, density, 0, 0);
+    context.fillStyle = INK[nextTheme];
     switching = true;
 
     const startedAt = performance.now();
     const step = (now) => {
       const t = clamp01((now - startedAt) / DURATION);
-      drawSplat(splat, t, now, gooContext, crispContext, width, height, color);
+      context.clearRect(0, 0, width, height);
       if (t < 1) {
+        context.fill(new Path2D(inkShape(splat, t, now, width, height)), "nonzero");
         requestAnimationFrame(step);
         return;
       }
-      // La page est entièrement recouverte : on change le thème dessous, puis l'encre s'efface.
-      gooContext.fillStyle = color;
-      gooContext.fillRect(0, 0, layer.goo.width, layer.goo.height);
+      // Page recouverte : on change le thème dessous, puis l'encre s'efface.
+      context.fillRect(0, 0, width, height);
       applyTheme(nextTheme);
       requestAnimationFrame(() => {
-        layer.element.classList.add("is-leaving");
+        layer.style.opacity = "0";
         setTimeout(() => {
-          layer.element.hidden = true;
+          layer.hidden = true;
           switching = false;
         }, 470);
       });
@@ -524,8 +486,7 @@ if (themeToggle) {
     } else if (document.startViewTransition && CSS.supports("clip-path", 'path(nonzero, "M0 0L1 0L1 1Z")')) {
       viewTransitionSwitch(nextTheme);
     } else {
-      // Navigateurs plus anciens : la tache est peinte en aplat, puis le thème change.
-      inkSwitch(nextTheme);
+      canvasSwitch(nextTheme);
     }
 
     try {

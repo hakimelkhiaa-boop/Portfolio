@@ -288,42 +288,6 @@ body.page--project-open .rail {
   pointer-events: none;
 }
 
-.cursor {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 100;
-  display: grid;
-  width: 36px;
-  height: 36px;
-  margin: -18px 0 0 -18px;
-  place-items: center;
-  border: 1px solid var(--accent);
-  border-radius: 50%;
-  color: var(--accent-ink);
-  font: 500 0.6rem/1 var(--mono);
-  letter-spacing: 0.1em;
-  opacity: 0;
-  pointer-events: none;
-  transition:
-    opacity 0.25s ease,
-    width 0.3s ease,
-    height 0.3s ease,
-    margin 0.3s ease,
-    background 0.3s ease;
-}
-
-.cursor.is-on {
-  opacity: 1;
-}
-
-.cursor.is-view {
-  width: 84px;
-  height: 84px;
-  margin: -42px 0 0 -42px;
-  background: var(--accent);
-}
-
 /* --- Structure commune --- */
 .page {
   position: relative;
@@ -482,10 +446,11 @@ body.page--project-open .rail {
 .hero__line .char {
   display: inline-block;
   translate: 0 calc(var(--k, 0) * -7%);
-  animation-play-state: paused;
   transform: translateY(105%);
   animation: char-rise 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
   animation-delay: calc(var(--i) * 55ms + 250ms);
+  /* Après le raccourci « animation », sinon il remettrait l'animation en marche. */
+  animation-play-state: paused;
 }
 
 html.is-ready .hero__line .char {
@@ -2094,10 +2059,47 @@ html.js-loading .loader {
 .loader.is-done {
   opacity: 0;
 }
+/* Passage à l'accueil : le serpent quitte la barre (il est redessiné sur la page, au même
+   endroit, par site.js), le reste de l'écran de chargement s'efface en fondu. */
+/* Pendant le chargement et l'enroulement du serpent, la barre du haut et le rail restent
+   cachés : ils apparaissent avec le reste de l'accueil. */
+html.js-loading .topbar,
+html.js-loading .rail {
+  opacity: 0;
+}
+
+/* Les lettres du titre attendent sous leur ligne : on les masque tant que l'intro joue. */
+html.js-loading .hero__title {
+  visibility: hidden;
+}
+
+html.js-loading .loader.is-handoff {
+  background: transparent;
+  pointer-events: none;
+}
+.loader.is-handoff .loader__svg,
+.loader.is-handoff .loader__count,
+.loader.is-handoff .loader__label {
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+.loader.is-handoff .loader__serpent {
+  opacity: 0;
+  transition: none;
+}
 .loader.is-done .loader__svg {
   transform: scale(24);
   opacity: 0;
 }
+/* Barre de chargement : le serpent glisse dessus (dessiné par site.js). */
+.loader__serpent {
+  display: block;
+  width: min(440px, 78vw);
+  height: 60px;
+  transition: opacity 0.3s ease;
+}
+
+.loader.is-done .loader__serpent,
 .loader.is-done .loader__count,
 .loader.is-done .loader__label {
   opacity: 0;

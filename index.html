@@ -19,9 +19,9 @@
       content="Communication visuelle, design graphique, photographie et création web."
     />
     <!-- À la mise en ligne : remplace ces chemins par l'adresse complète du site
-         (https://…/assets/web/apercu.jpg) et ajoute <link rel="canonical"> + og:url.
+         (https://…/assets/apercu.jpg) et ajoute <link rel="canonical"> + og:url.
          Les réseaux sociaux n'affichent l'aperçu qu'avec une adresse absolue. -->
-    <meta property="og:image" content="assets/web/apercu.jpg" />
+    <meta property="og:image" content="assets/apercu.jpg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta
@@ -103,6 +103,7 @@
           HE
         </text>
       </svg>
+      <canvas class="loader__serpent"></canvas>
       <p class="loader__count">000</p>
       <p class="loader__label">Hakim Elkhia · Portfolio</p>
     </div>
@@ -111,7 +112,6 @@
     <canvas id="hive" aria-hidden="true"></canvas>
     <div class="grain" aria-hidden="true"></div>
     <div class="scroll-progress" aria-hidden="true"></div>
-    <div class="cursor" aria-hidden="true"><span></span></div>
 
     <header class="topbar">
       <a
@@ -323,7 +323,7 @@
             <p class="photo-lightbox__title" id="photo-lightbox__title"></p>
             <img
               class="photo-lightbox__image"
-              src="assets/web/couverture-photos.webp"
+              src="assets/couverture-photos.webp"
               alt=""
             />
             <button
@@ -342,7 +342,7 @@
               data-project-id="project-01"
             >
               <div class="project__cover" aria-hidden="true">
-                <img src="assets/web/couverture-rock-en-seine.webp" alt="" width="543" height="728" decoding="async" />
+                <img src="assets/couverture-rock-en-seine.webp" alt="" width="543" height="728" decoding="async" />
               </div>
               <h3 class="project__heading" id="project-title-01">
                 Rock en Seine
@@ -390,31 +390,31 @@
                 </p>
                 <div class="project__images">
                   <figure class="project__photo">
-                    <img src="assets/web/rock-en-seine-01.webp" alt="Planche de formes 3D colorées servant de base aux affiches de Rock en Seine." width="607" height="667" loading="lazy" decoding="async" />
+                    <img src="assets/rock-en-seine-01.webp" alt="Planche de formes 3D colorées servant de base aux affiches de Rock en Seine." width="607" height="667" loading="lazy" decoding="async" />
                     <figcaption>Modèles de l’équipe pour la création d’affiches.</figcaption>
                   </figure>
                   <figure class="project__photo">
-                    <img src="assets/web/rock-en-seine-02.webp" alt="Essais typographiques pour l’identité visuelle de Rock en Seine." width="412" height="405" loading="lazy" decoding="async" />
+                    <img src="assets/rock-en-seine-02.webp" alt="Essais typographiques pour l’identité visuelle de Rock en Seine." width="412" height="405" loading="lazy" decoding="async" />
                     <figcaption>Essais typographiques</figcaption>
                   </figure>
                   <figure class="project__photo">
-                    <img src="assets/web/rock-en-seine-03.webp" alt="Flyer promotionnel de Rock en Seine créé par l’équipe du projet." width="530" height="751" loading="lazy" decoding="async" />
+                    <img src="assets/rock-en-seine-03.webp" alt="Flyer promotionnel de Rock en Seine créé par l’équipe du projet." width="530" height="751" loading="lazy" decoding="async" />
                     <figcaption>Visuel de flyers créé par l’équipe du projet.</figcaption>
                   </figure>
                   <figure class="project__photo">
-                    <img src="assets/web/rock-en-seine-04.webp" alt="Visuel d’une publication Instagram créé par l’équipe pour Rock en Seine." width="850" height="555" loading="lazy" decoding="async" />
+                    <img src="assets/rock-en-seine-04.webp" alt="Visuel d’une publication Instagram créé par l’équipe pour Rock en Seine." width="850" height="555" loading="lazy" decoding="async" />
                     <figcaption>Visuel de publication Instagram réalisé par l’équipe.</figcaption>
                   </figure>
                   <figure class="project__photo">
-                    <img src="assets/web/rock-en-seine-05.webp" alt="Autre visuel de publication Instagram créé par l’équipe pour Rock en Seine." width="851" height="556" loading="lazy" decoding="async" />
+                    <img src="assets/rock-en-seine-05.webp" alt="Autre visuel de publication Instagram créé par l’équipe pour Rock en Seine." width="851" height="556" loading="lazy" decoding="async" />
                     <figcaption>Visuel de publication Instagram réalisé par l’équipe.</figcaption>
                   </figure>
                   <figure class="project__photo">
-                    <img src="assets/web/rock-en-seine-06.webp" alt="Forme abstraite noire et blanche créée en solo comme ressource d’affiche." width="783" height="551" loading="lazy" decoding="async" />
+                    <img src="assets/rock-en-seine-06.webp" alt="Forme abstraite noire et blanche créée en solo comme ressource d’affiche." width="783" height="551" loading="lazy" decoding="async" />
                     <figcaption>Ressource créée en solo pour une proposition d’affiche.</figcaption>
                   </figure>
                   <figure class="project__photo">
-                    <img src="assets/web/rock-en-seine-07.webp" alt="Affiche proposée en solo pour le projet Rock en Seine." width="543" height="728" loading="lazy" decoding="async" />
+                    <img src="assets/rock-en-seine-07.webp" alt="Affiche proposée en solo pour le projet Rock en Seine." width="543" height="728" loading="lazy" decoding="async" />
                     <figcaption>Proposition d’affiche réalisée en solo.</figcaption>
                   </figure>
                 </div>
@@ -432,7 +432,7 @@
               data-project-id="project-02"
             >
               <div class="project__cover" aria-hidden="true">
-                <img src="assets/web/couverture-photos.webp" alt="" width="1100" height="733" loading="lazy" decoding="async" />
+                <img src="assets/couverture-photos.webp" alt="" width="1100" height="733" loading="lazy" decoding="async" />
               </div>
               <h3 class="project__heading" id="project-title-02">Photos</h3>
               <button
@@ -469,105 +469,105 @@
                 </p>
                 <div class="project__images">
                   <figure class="project__photo">
-                    <img src="assets/web/photo-01.webp" alt="Voie lactée au-dessus d’un toit sombre, sous un ciel orangé." width="1600" height="1067" loading="lazy" decoding="async" />
+                    <img src="assets/photo-01.webp" alt="Voie lactée au-dessus d’un toit sombre, sous un ciel orangé." width="1600" height="1067" loading="lazy" decoding="async" />
                     <figcaption></figcaption>
                   </figure>
                   <figure class="project__photo">
-                    <img src="assets/web/photo-02.webp" alt="Voie lactée lumineuse qui traverse verticalement un ciel nocturne." width="1600" height="1067" loading="lazy" decoding="async" />
+                    <img src="assets/photo-02.webp" alt="Voie lactée lumineuse qui traverse verticalement un ciel nocturne." width="1600" height="1067" loading="lazy" decoding="async" />
                     <figcaption></figcaption>
                   </figure>
                   <figure class="project__photo">
-                    <img src="assets/web/photo-03.webp" alt="Ciel étoilé orangé traversé par la silhouette d’un poteau et de fils électriques." width="1600" height="1067" loading="lazy" decoding="async" />
+                    <img src="assets/photo-03.webp" alt="Ciel étoilé orangé traversé par la silhouette d’un poteau et de fils électriques." width="1600" height="1067" loading="lazy" decoding="async" />
                     <figcaption></figcaption>
                   </figure>
                   <figure class="project__photo">
-                    <img src="assets/web/photo-04.webp" alt="Champ éclairé et arbres sous un ciel nocturne traversé par des fils électriques." width="1600" height="1067" loading="lazy" decoding="async" />
+                    <img src="assets/photo-04.webp" alt="Champ éclairé et arbres sous un ciel nocturne traversé par des fils électriques." width="1600" height="1067" loading="lazy" decoding="async" />
                     <figcaption></figcaption>
                   </figure>
                   <figure class="project__photo">
-                    <img src="assets/web/photo-05.webp" alt="Champ et arbres sous un ciel étoilé, vus derrière une clôture." width="1600" height="1067" loading="lazy" decoding="async" />
+                    <img src="assets/photo-05.webp" alt="Champ et arbres sous un ciel étoilé, vus derrière une clôture." width="1600" height="1067" loading="lazy" decoding="async" />
                     <figcaption></figcaption>
                   </figure>
                   <figure class="project__photo">
-                    <img src="assets/web/photo-06.webp" alt="Silhouette d’un pin sous un ciel étoilé traversé par des câbles aériens." width="1600" height="1067" loading="lazy" decoding="async" />
+                    <img src="assets/photo-06.webp" alt="Silhouette d’un pin sous un ciel étoilé traversé par des câbles aériens." width="1600" height="1067" loading="lazy" decoding="async" />
                     <figcaption></figcaption>
                   </figure>
                   <figure class="project__photo">
-                    <img src="assets/web/photo-07.webp" alt="Champ orangé et arbres sous un ciel nocturne avec des fils électriques." width="1600" height="1067" loading="lazy" decoding="async" />
+                    <img src="assets/photo-07.webp" alt="Champ orangé et arbres sous un ciel nocturne avec des fils électriques." width="1600" height="1067" loading="lazy" decoding="async" />
                     <figcaption></figcaption>
                   </figure>
                   <figure class="project__photo">
-                    <img src="assets/web/photo-08.webp" alt="Fontaine dans un parc, en silhouette sous un ciel nuageux de fin de journée." width="1200" height="1600" loading="lazy" decoding="async" />
+                    <img src="assets/photo-08.webp" alt="Fontaine dans un parc, en silhouette sous un ciel nuageux de fin de journée." width="1200" height="1600" loading="lazy" decoding="async" />
                     <figcaption></figcaption>
                   </figure>
                   <!-- Photos masquées volontairement : sors une figure de ce commentaire pour l'afficher.
                   <figure class="project__photo">
-                    <img src="assets/web/photo-09.webp" alt="Chaton tigré et blanc assis sur un plaid rayé, le regard levé vers l’objectif." width="825" height="908" loading="lazy" decoding="async" />
+                    <img src="assets/photo-09.webp" alt="Chaton tigré et blanc assis sur un plaid rayé, le regard levé vers l’objectif." width="825" height="908" loading="lazy" decoding="async" />
                     <figcaption></figcaption>
                   </figure>
                   <figure class="project__photo">
-                    <img src="assets/web/photo-10.webp" alt="Guirlandes de lanternes rouges suspendues au-dessus d’une rue piétonne animée." width="739" height="1600" loading="lazy" decoding="async" />
+                    <img src="assets/photo-10.webp" alt="Guirlandes de lanternes rouges suspendues au-dessus d’une rue piétonne animée." width="739" height="1600" loading="lazy" decoding="async" />
                     <figcaption></figcaption>
                   </figure>
                   <figure class="project__photo">
-                    <img src="assets/web/photo-11.webp" alt="Goéland posé sur l’eau, dans les reflets dorés du soleil couchant." width="739" height="1600" loading="lazy" decoding="async" />
+                    <img src="assets/photo-11.webp" alt="Goéland posé sur l’eau, dans les reflets dorés du soleil couchant." width="739" height="1600" loading="lazy" decoding="async" />
                     <figcaption></figcaption>
                   </figure>
                   <figure class="project__photo">
-                    <img src="assets/web/photo-12.webp" alt="Coucher de soleil sur la mer depuis un rivage rocheux, des rayons perçant les nuages." width="1200" height="1600" loading="lazy" decoding="async" />
+                    <img src="assets/photo-12.webp" alt="Coucher de soleil sur la mer depuis un rivage rocheux, des rayons perçant les nuages." width="1200" height="1600" loading="lazy" decoding="async" />
                     <figcaption></figcaption>
                   </figure>
                   <figure class="project__photo">
-                    <img src="assets/web/photo-13.webp" alt="Cloître d’une abbaye gothique et sa pelouse, vus depuis la galerie." width="739" height="1600" loading="lazy" decoding="async" />
+                    <img src="assets/photo-13.webp" alt="Cloître d’une abbaye gothique et sa pelouse, vus depuis la galerie." width="739" height="1600" loading="lazy" decoding="async" />
                     <figcaption></figcaption>
                   </figure>
                   <figure class="project__photo">
-                    <img src="assets/web/photo-14.webp" alt="Ruelle médiévale étroite, une lanterne suspendue entre les façades de pierre." width="739" height="1600" loading="lazy" decoding="async" />
+                    <img src="assets/photo-14.webp" alt="Ruelle médiévale étroite, une lanterne suspendue entre les façades de pierre." width="739" height="1600" loading="lazy" decoding="async" />
                     <figcaption></figcaption>
                   </figure>
                   <figure class="project__photo">
-                    <img src="assets/web/photo-15.webp" alt="Façade d’une église gothique à rosace, derrière un massif de fleurs mauves." width="739" height="1600" loading="lazy" decoding="async" />
+                    <img src="assets/photo-15.webp" alt="Façade d’une église gothique à rosace, derrière un massif de fleurs mauves." width="739" height="1600" loading="lazy" decoding="async" />
                     <figcaption></figcaption>
                   </figure>
                   <figure class="project__photo">
-                    <img src="assets/web/photo-16.webp" alt="Le Mont-Saint-Michel vu depuis la baie à marée basse." width="739" height="1600" loading="lazy" decoding="async" />
+                    <img src="assets/photo-16.webp" alt="Le Mont-Saint-Michel vu depuis la baie à marée basse." width="739" height="1600" loading="lazy" decoding="async" />
                     <figcaption></figcaption>
                   </figure>
                   <figure class="project__photo">
-                    <img src="assets/web/photo-17.webp" alt="Goéland debout sur un muret de pierre, face à la baie." width="739" height="1600" loading="lazy" decoding="async" />
+                    <img src="assets/photo-17.webp" alt="Goéland debout sur un muret de pierre, face à la baie." width="739" height="1600" loading="lazy" decoding="async" />
                     <figcaption></figcaption>
                   </figure>
                   <figure class="project__photo">
-                    <img src="assets/web/photo-18.webp" alt="Escalier de pierre voûté, éclairé par une lumière chaude." width="739" height="1600" loading="lazy" decoding="async" />
+                    <img src="assets/photo-18.webp" alt="Escalier de pierre voûté, éclairé par une lumière chaude." width="739" height="1600" loading="lazy" decoding="async" />
                     <figcaption></figcaption>
                   </figure>
                   <figure class="project__photo">
-                    <img src="assets/web/photo-19.webp" alt="Enfilade de colonnes dans un cloître gothique." width="739" height="1600" loading="lazy" decoding="async" />
+                    <img src="assets/photo-19.webp" alt="Enfilade de colonnes dans un cloître gothique." width="739" height="1600" loading="lazy" decoding="async" />
                     <figcaption></figcaption>
                   </figure>
                   <figure class="project__photo">
-                    <img src="assets/web/photo-20.webp" alt="Chœur gothique d’une abbatiale, avec ses hautes verrières et son sol dallé." width="739" height="1600" loading="lazy" decoding="async" />
+                    <img src="assets/photo-20.webp" alt="Chœur gothique d’une abbatiale, avec ses hautes verrières et son sol dallé." width="739" height="1600" loading="lazy" decoding="async" />
                     <figcaption></figcaption>
                   </figure>
                   <figure class="project__photo">
-                    <img src="assets/web/photo-21.webp" alt="Îlot rocheux portant un phare blanc, au milieu d’une mer bleue." width="739" height="1600" loading="lazy" decoding="async" />
+                    <img src="assets/photo-21.webp" alt="Îlot rocheux portant un phare blanc, au milieu d’une mer bleue." width="739" height="1600" loading="lazy" decoding="async" />
                     <figcaption></figcaption>
                   </figure>
                   <figure class="project__photo">
-                    <img src="assets/web/photo-22.webp" alt="Côte de rochers roses couverte de lande, une croix au sommet." width="739" height="1600" loading="lazy" decoding="async" />
+                    <img src="assets/photo-22.webp" alt="Côte de rochers roses couverte de lande, une croix au sommet." width="739" height="1600" loading="lazy" decoding="async" />
                     <figcaption></figcaption>
                   </figure>
                   <figure class="project__photo">
-                    <img src="assets/web/photo-23.webp" alt="Loup blanc couché sur un rocher au bord d’un bassin, dans la verdure." width="739" height="1600" loading="lazy" decoding="async" />
+                    <img src="assets/photo-23.webp" alt="Loup blanc couché sur un rocher au bord d’un bassin, dans la verdure." width="739" height="1600" loading="lazy" decoding="async" />
                     <figcaption></figcaption>
                   </figure>
                   <figure class="project__photo">
-                    <img src="assets/web/photo-24.webp" alt="Phoque gris allongé au bord de l’eau." width="1600" height="900" loading="lazy" decoding="async" />
+                    <img src="assets/photo-24.webp" alt="Phoque gris allongé au bord de l’eau." width="1600" height="900" loading="lazy" decoding="async" />
                     <figcaption></figcaption>
                   </figure>
                   -->
                   <figure class="project__photo">
-                    <img src="assets/web/photo-25.webp" alt="Prairie verte parsemée de fleurs, bordée d’une clôture, sous un ciel voilé." width="1600" height="1200" loading="lazy" decoding="async" />
+                    <img src="assets/photo-25.webp" alt="Prairie verte parsemée de fleurs, bordée d’une clôture, sous un ciel voilé." width="1600" height="1200" loading="lazy" decoding="async" />
                     <figcaption></figcaption>
                   </figure>
                 </div>
@@ -585,7 +585,7 @@
               data-project-id="project-03"
             >
               <div class="project__cover" aria-hidden="true">
-                <img src="assets/web/couverture-dessins.webp" alt="" width="825" height="1100" loading="lazy" decoding="async" />
+                <img src="assets/couverture-dessins.webp" alt="" width="825" height="1100" loading="lazy" decoding="async" />
               </div>
               <h3 class="project__heading" id="project-title-03">Dessins</h3>
               <button
@@ -620,23 +620,23 @@
                 </p>
                 <div class="project__images">
                   <figure class="project__photo">
-                    <img src="assets/web/dessin-01.webp" alt="Dessin au crayon : une fleur de lotus dans un cercle, entourée de pétales et d’une carpe koï." width="1200" height="1600" loading="lazy" decoding="async" />
+                    <img src="assets/dessin-01.webp" alt="Dessin au crayon : une fleur de lotus dans un cercle, entourée de pétales et d’une carpe koï." width="1200" height="1600" loading="lazy" decoding="async" />
                     <figcaption></figcaption>
                   </figure>
                   <figure class="project__photo">
-                    <img src="assets/web/dessin-02.webp" alt="Dessin au crayon : un mandala géométrique étoilé, surmonté de deux comètes." width="1200" height="1600" loading="lazy" decoding="async" />
+                    <img src="assets/dessin-02.webp" alt="Dessin au crayon : un mandala géométrique étoilé, surmonté de deux comètes." width="1200" height="1600" loading="lazy" decoding="async" />
                     <figcaption></figcaption>
                   </figure>
                   <figure class="project__photo">
-                    <img src="assets/web/dessin-03.webp" alt="Dessin au crayon : un bandeau torsadé orné d’une étoile, au-dessus de lignes en écriture inventée." width="1200" height="1600" loading="lazy" decoding="async" />
+                    <img src="assets/dessin-03.webp" alt="Dessin au crayon : un bandeau torsadé orné d’une étoile, au-dessus de lignes en écriture inventée." width="1200" height="1600" loading="lazy" decoding="async" />
                     <figcaption></figcaption>
                   </figure>
                   <figure class="project__photo">
-                    <img src="assets/web/dessin-04.webp" alt="Dessin au crayon : un heaume de chevalier marqué d’une croix." width="1200" height="1600" loading="lazy" decoding="async" />
+                    <img src="assets/dessin-04.webp" alt="Dessin au crayon : un heaume de chevalier marqué d’une croix." width="1200" height="1600" loading="lazy" decoding="async" />
                     <figcaption></figcaption>
                   </figure>
                   <figure class="project__photo">
-                    <img src="assets/web/dessin-06.webp" alt="Dessin au crayon : étude de plis et d’ombres sur un drapé." width="1200" height="1600" loading="lazy" decoding="async" />
+                    <img src="assets/dessin-06.webp" alt="Dessin au crayon : étude de plis et d’ombres sur un drapé." width="1200" height="1600" loading="lazy" decoding="async" />
                     <figcaption></figcaption>
                   </figure>
                 </div>
