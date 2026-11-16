@@ -5,6 +5,7 @@
 // Ce fichier est autonome : pour retirer l'easter egg, supprimez simplement sa balise <script>.
 (() => {
   "use strict";
+  const tr = window.tr || ((text) => text);
 
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const KONAMI = ["arrowup", "arrowup", "arrowdown", "arrowdown", "arrowleft", "arrowright", "arrowleft", "arrowright", "b", "a"];
@@ -258,7 +259,7 @@
     const banner = document.createElement("div");
     banner.className = "gold-banner";
     banner.setAttribute("role", "status");
-    banner.innerHTML = `<p class="gold-banner__title">Pluie d’or</p><p class="gold-banner__sub">Vous avez trouvé un secret ✦</p>`;
+    banner.innerHTML = `<p class="gold-banner__title">${tr("Pluie d’or")}</p><p class="gold-banner__sub">${tr("Vous avez trouvé un secret ✦")}</p>`;
 
     document.body.append(flash, banner);
     extras.push(flash, banner);

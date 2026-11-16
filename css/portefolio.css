@@ -208,6 +208,23 @@ body.page--project-open .rail {
     background 0.2s ease;
 }
 
+.lang-toggle {
+  min-height: 38px;
+  min-width: 44px;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.lang-toggle:hover,
 .theme-toggle:hover {
   border-color: var(--accent);
   background: color-mix(in srgb, var(--accent) 12%, transparent);
@@ -2547,6 +2564,7 @@ html:not(.js) .scroll-cue {
 }
 
 .theme-toggle,
+.lang-toggle,
 .menu-toggle {
   min-height: 44px;
 }

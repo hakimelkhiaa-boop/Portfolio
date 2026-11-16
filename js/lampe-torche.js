@@ -6,6 +6,7 @@
 // Ce fichier est autonome : pour retirer l'easter egg, supprimez simplement sa balise <script>.
 (() => {
   "use strict";
+  const tr = window.tr || ((text) => text);
 
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const CLICKS_NEEDED = 5;
@@ -105,7 +106,7 @@
       if (Math.hypot(dx, dy) < 110) {
         found = true;
         secret.classList.add("is-found");
-        say("Vous l’avez trouvé ✦", 3200);
+        say(tr("Vous l’avez trouvé ✦"), 3200);
       }
     }
     rafId = requestAnimationFrame(loop);
@@ -125,7 +126,7 @@
     secret.className = "torch-secret";
     secret.style.left = `${14 + Math.random() * 68}%`;
     secret.style.top = `${24 + Math.random() * 58}%`;
-    secret.innerHTML = `<p class="torch-secret__title">Vous m’avez trouvé ✦</p><a class="torch-secret__link" href="mailto:hakimelkhia.pro@gmail.com">hakimelkhia.pro@gmail.com</a>`;
+    secret.innerHTML = `<p class="torch-secret__title">${tr("Vous m’avez trouvé ✦")}</p><a class="torch-secret__link" href="mailto:hakimelkhia.pro@gmail.com">hakimelkhia.pro@gmail.com</a>`;
 
     tip = document.createElement("div");
     tip.className = "torch-tip";
@@ -134,7 +135,7 @@
     offButton = document.createElement("button");
     offButton.type = "button";
     offButton.className = "torch-off";
-    offButton.textContent = "Rallumer · Échap";
+    offButton.textContent = tr("Rallumer · Échap");
     offButton.addEventListener("click", turnOff);
 
     document.body.append(secret, overlay, tip, offButton);
@@ -142,7 +143,7 @@
       overlay.classList.add("is-on");
       offButton.classList.add("is-shown");
     });
-    say("Lampe torche · cherchez le message caché", 4500);
+    say(tr("Lampe torche · cherchez le message caché"), 4500);
 
     window.addEventListener("pointermove", onMove);
     window.addEventListener("keydown", onKey);

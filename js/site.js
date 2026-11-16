@@ -2,6 +2,7 @@
 // Aucune bibliothèque externe : canvas 2D, IntersectionObserver et requestAnimationFrame.
 (() => {
   const root = document.documentElement;
+  const tr = window.tr || ((text) => text); // traduction (voir le script en bas de index.html)
   const body = document.body;
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
@@ -164,7 +165,7 @@
   function setMenu(open) {
     menu.classList.toggle("is-open", open);
     menuToggle.setAttribute("aria-expanded", String(open));
-    menuToggle.textContent = open ? "Fermer" : "Menu";
+    menuToggle.textContent = tr(open ? "Fermer" : "Menu");
   }
   if (menuToggle && menu) {
     menuToggle.addEventListener("click", () => setMenu(!menu.classList.contains("is-open")));
@@ -363,13 +364,13 @@
     }
     const nav = document.createElement("nav");
     nav.className = "project__nav";
-    nav.setAttribute("aria-label", "Autres projets");
+    nav.setAttribute("aria-label", tr("Autres projets"));
     nav.innerHTML = `
       <button type="button" class="project__nav-btn" data-dir="-1">
-        <span class="project__nav-label">← Précédent</span><span class="project__nav-title"></span>
+        <span class="project__nav-label">${tr("← Précédent")}</span><span class="project__nav-title"></span>
       </button>
       <button type="button" class="project__nav-btn" data-dir="1">
-        <span class="project__nav-label">Suivant →</span><span class="project__nav-title"></span>
+        <span class="project__nav-label">${tr("Suivant →")}</span><span class="project__nav-title"></span>
       </button>`;
     const [previousTitle, nextTitle] = $$(".project__nav-title", nav);
     previousTitle.textContent = titleOf(cards[(index - 1 + cards.length) % cards.length]);
@@ -478,7 +479,7 @@
     button.addEventListener("click", async () => {
       try {
         await navigator.clipboard.writeText(button.dataset.copy);
-        button.textContent = "Adresse copiée ✓";
+        button.textContent = tr("Adresse copiée ✓");
       } catch {
         button.textContent = button.dataset.copy;
       }

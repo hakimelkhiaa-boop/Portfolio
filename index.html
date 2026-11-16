@@ -59,14 +59,14 @@
         } catch (error) {}
       })();
     </script>
-    <!-- ?v=2 : à augmenter après chaque modification, pour que le navigateur ne garde pas
+    <!-- ?v=3 : à augmenter après chaque modification, pour que le navigateur ne garde pas
          l'ancienne version en mémoire. -->
-    <link rel="stylesheet" href="css/portefolio.css?v=2" />
-    <script defer src="js/projects.js?v=2"></script>
-    <script defer src="js/theme.js?v=2"></script>
-    <script defer src="js/site.js?v=2"></script>
-    <script defer src="js/pluie-or.js?v=2"></script>
-    <script defer src="js/lampe-torche.js?v=2"></script>
+    <link rel="stylesheet" href="css/portefolio.css?v=3" />
+    <script defer src="js/projects.js?v=3"></script>
+    <script defer src="js/theme.js?v=3"></script>
+    <script defer src="js/site.js?v=3"></script>
+    <script defer src="js/pluie-or.js?v=3"></script>
+    <script defer src="js/lampe-torche.js?v=3"></script>
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -101,6 +101,7 @@
     <header class="topbar">
       <a
         class="topbar__brand"
+        translate="no"
         href="#accueil"
         aria-label="Retour en haut de la page"
       >
@@ -125,6 +126,9 @@
       </nav>
       <div class="topbar__tools">
         <button class="theme-toggle" type="button">Mode clair</button>
+        <button class="lang-toggle" type="button" lang="en" aria-label="View the site in English">
+          EN
+        </button>
         <button
           class="menu-toggle"
           type="button"
@@ -183,7 +187,7 @@
             <span>Design graphique · Photographie · Création web</span>
           </div>
           <div class="hero__main">
-            <h1 class="hero__title" aria-label="Hakim Elkhia">
+            <h1 class="hero__title" aria-label="Hakim Elkhia" translate="no">
               <span class="hero__line" aria-hidden="true" data-chars
                 >Hakim</span
               >
@@ -993,12 +997,246 @@
           <p>
             J’ai envie de contribuer à des projets qui font dialoguer image,
             identité visuelle et création web. Au plaisir d’échanger,
-            <strong>Hakim ELKHIA</strong>.
+            <strong translate="no">Hakim ELKHIA</strong>.
           </p>
           <a class="contact__top" href="#accueil">Retour en haut <span aria-hidden="true">↑</span></a>
         </div>
-        <p class="footer-mark" aria-hidden="true">Hakim Elkhia</p>
+        <p class="footer-mark" aria-hidden="true" translate="no">Hakim Elkhia</p>
       </section>
     </main>
+    <!-- Version anglaise : si le navigateur n'est pas réglé en français, la page passe en
+         anglais (le bouton FR / EN permet de changer). Ce script s'exécute avant les autres
+         (qui sont en « defer ») : les textes sont traduits avant les animations.
+         Pour tester : ajouter ?lang=en ou ?lang=fr à l'adresse. -->
+    <script>
+      (function () {
+        var root = document.documentElement;
+        var choice = new URLSearchParams(location.search).get("lang");
+        try {
+          choice = choice || localStorage.getItem("portfolio-lang");
+        } catch (error) {}
+        var browser = (navigator.languages && navigator.languages[0]) || navigator.language || "fr";
+        var lang = choice === "en" || choice === "fr" ? choice : /^fr/i.test(browser) ? "fr" : "en";
+        root.lang = lang;
+
+        // Textes de la page : français → anglais.
+        var EN = {
+          "Aller au contenu": "Skip to content",
+          "Chargement du portfolio…": "Loading the portfolio…",
+          "Profil": "About",
+          "Projets": "Projects",
+          "Compétences": "Skills",
+          "Contact": "Contact",
+          "Mode clair": "Light mode",
+          "Mode sombre": "Dark mode",
+          "Menu": "Menu",
+          "Fermer": "Close",
+          "Faites défiler": "Scroll down",
+          "Accueil": "Home",
+          "Design graphique · Photographie · Création web": "Graphic design · Photography · Web design",
+          "Graphisme, photographie, création : voici ma": "Graphic design, photography, creation: this is my",
+          "Étudiant en MMI, à la recherche d’opportunités en communication visuelle, design graphique et création web.":
+            "Multimedia student (MMI), looking for opportunities in visual communication, graphic design and web design.",
+          "Voir mes projets": "See my projects",
+          "Me contacter": "Contact me",
+          "Ouvert aux opportunités": "Open to opportunities",
+          "Étudiant en MMI": "MMI student",
+          "Design graphique": "Graphic design",
+          "Photographie": "Photography",
+          "Création web": "Web design",
+          "Communication visuelle": "Visual communication",
+          "Affiches": "Posters",
+          "Qui je suis": "Who I am",
+          "Je suis": "I am a",
+          "étudiant": "student",
+          "en Métiers du Multimédia et de l’Internet, et j’aime donner vie à mes":
+            "in Multimedia and Internet studies (MMI), and I love bringing my",
+          "idées": "ideas",
+          ". Curieux et créatif, je conçois des univers visuels qui marquent les esprits, en design comme sur le web.":
+            " to life. Curious and creative, I build visual worlds that stay with people, in design as on the web.",
+          "Domaines": "Fields",
+          "Cursus": "Program",
+          "Mes": "My",
+          "projets": "projects",
+          "passions": "passions",
+          "Des projets réalisés pendant mes études.": "Projects made during my studies.",
+          "Projet collectif · Communication visuelle": "Group project · Visual communication",
+          "Travail d’équipe": "Teamwork",
+          "Imaginer un univers visuel pour le festival et le décliner sur des affiches, flyers, publications Instagram et un site web.":
+            "Imagining a visual identity for the festival and rolling it out on posters, flyers, Instagram posts and a website.",
+          "Ma contribution personnelle": "My personal contribution",
+          "Réaliser une proposition d’affiche en solo.": "Designing a poster proposal on my own.",
+          "Visuels à venir.": "Visuals coming soon.",
+          "Visuels à venir": "Visuals coming soon",
+          "Modèles de l’équipe pour la création d’affiches.": "The team’s templates for the posters.",
+          "Essais typographiques": "Type experiments",
+          "Visuel de flyers créé par l’équipe du projet.": "Flyer design made by the project team.",
+          "Visuel de publication Instagram réalisé par l’équipe.": "Instagram post design made by the team.",
+          "Ressource créée en solo pour une proposition d’affiche.": "Asset I made on my own for a poster proposal.",
+          "Proposition d’affiche réalisée en solo.": "Poster proposal made on my own.",
+          "Photos": "Photos",
+          "Photographie personnelle": "Personal photography",
+          "Projet personnel": "Personal project",
+          "Sélection de neuf photographies prises pendant mon temps libre.": "A selection of nine photographs taken in my free time.",
+          "Dessins": "Drawings",
+          "Dessin personnel": "Personal drawing",
+          "Pratique personnelle": "Personal practice",
+          "Je dessine pendant mon temps libre, au gré des idées qui me passent par la tête.":
+            "I draw in my free time, following whatever ideas come to mind.",
+          "Projet universitaire · Stickers": "University project · Stickers",
+          "Ma réalisation": "What I made",
+          "Créer une série de stickers représentant mes compétences techniques et comportementales avec Illustrator et Photoshop.":
+            "Creating a series of stickers showing my technical and soft skills, with Illustrator and Photoshop.",
+          "Création d’un site web": "Building a website",
+          "Projet universitaire · Web": "University project · Web",
+          "Déroulé du projet universitaire": "How the university project went",
+          "Première consigne : créer un site web inspiré de Netflix. Une seconde consigne, donnée une semaine avant la fin, imposait de reproduire le style d’un autre site.":
+            "First brief: build a website inspired by Netflix. A second brief, given one week before the deadline, required reproducing the style of another site.",
+          "Projet universitaire · Création web": "University project · Web design",
+          "Concevoir une page d’atterrissage destinée à un cinéma dans le cadre d’un projet universitaire.":
+            "Designing a landing page for a cinema, as part of a university project.",
+          "Ce que je sais faire": "What I can do",
+          "compétences": "skills",
+          "Des compétences développées à travers mes projets universitaires et personnels.":
+            "Skills built through my university and personal projects.",
+          "Imaginer un univers graphique et le décliner sur différents supports pour un projet collectif autour de Rock en Seine.":
+            "Imagining a graphic identity and rolling it out on different media for a group project around Rock en Seine.",
+          "Flyers": "Flyers",
+          "Réseaux sociaux": "Social media",
+          "Ouvrir le projet": "Open the project",
+          "Créer une série de stickers pour représenter des compétences, avec Illustrator et Photoshop.":
+            "Creating a series of stickers to represent skills, with Illustrator and Photoshop.",
+          "Réaliser et présenter une sélection de photographies personnelles prises pendant mon temps libre.":
+            "Taking and presenting a selection of personal photographs shot in my free time.",
+          "Prise de vue": "Shooting",
+          "Sélection photo": "Photo selection",
+          "Ouvrir la sélection": "Open the selection",
+          "Concevoir des pages web dans le cadre de projets universitaires, dont un site inspiré de Netflix et une landing page pour un cinéma.":
+            "Designing web pages for university projects, including a Netflix-inspired website and a landing page for a cinema.",
+          "Site web": "Website",
+          "Ouvrir le site web": "Open the website",
+          "Ouvrir la landing page": "Open the landing page",
+          "Mes réseaux": "Find me online",
+          "Parlons de votre": "Let’s talk about your",
+          "projet": "project",
+          "Communication visuelle, design graphique ou création web : je serais ravi d’en discuter avec vous.":
+            "Visual communication, graphic design or web design: I would be glad to talk it over with you.",
+          "Me contacter par e-mail": "Email me",
+          "Copier l’adresse": "Copy the address",
+          "Adresse copiée ✓": "Address copied ✓",
+          "Mon profil professionnel": "My professional profile",
+          "Mon profil et mes projets": "My profile and projects",
+          "Ce que j’aime": "What I like",
+          "J’ai envie de contribuer à des projets qui font dialoguer image, identité visuelle et création web. Au plaisir d’échanger,":
+            "I want to contribute to projects where images, visual identity and web design work together. Looking forward to hearing from you,",
+          "Retour en haut": "Back to top",
+          "Mon portfolio": "My portfolio",
+          "Retour en haut de la page": "Back to the top of the page",
+          "Navigation principale": "Main navigation",
+          "Faire défiler vers le profil": "Scroll to the About section",
+          "Accès rapide": "Quick links",
+          "Fermer la photo agrandie": "Close the enlarged photo",
+          "Afficher la photo précédente": "Show the previous photo",
+          "Afficher la photo suivante": "Show the next photo",
+          "Fermer ce projet": "Close this project",
+          "Galerie du projet Rock en Seine": "Rock en Seine project gallery",
+          "Galerie du projet Photos": "Photos project gallery",
+          "Galerie du projet Dessins": "Drawings project gallery",
+          "Galerie du projet Stickers": "Stickers project gallery",
+          "Galerie du projet Création d’un site web": "Building a website project gallery",
+          "Galerie du projet Landing Page": "Landing Page project gallery",
+          "Supports": "Media",
+          "Outils et réalisation": "Tools and output",
+          "Pratique": "Practice",
+          "Réalisations": "Projects",
+          "Mes réseaux et mon contact": "My social links and contact",
+          "Autres projets": "Other projects",
+          "← Précédent": "← Previous",
+          "Suivant →": "Next →",
+          "Photo précédente": "Previous photo",
+          "Photo suivante": "Next photo",
+          "Photo du projet": "Project photo",
+          "Pluie d’or": "Golden rain",
+          "Vous avez trouvé un secret ✦": "You found a secret ✦",
+          "Vous m’avez trouvé ✦": "You found me ✦",
+          "Vous l’avez trouvé ✦": "You found it ✦",
+          "Rallumer · Échap": "Lights on · Esc",
+          "Lampe torche · cherchez le message caché": "Flashlight · find the hidden message",
+          "Planche de formes 3D colorées servant de base aux affiches de Rock en Seine.":
+            "Board of colourful 3D shapes used as the basis for the Rock en Seine posters.",
+          "Essais typographiques pour l’identité visuelle de Rock en Seine.": "Type experiments for the Rock en Seine visual identity.",
+          "Flyer promotionnel de Rock en Seine créé par l’équipe du projet.": "Rock en Seine promotional flyer made by the project team.",
+          "Visuel d’une publication Instagram créé par l’équipe pour Rock en Seine.": "Instagram post design made by the team for Rock en Seine.",
+          "Autre visuel de publication Instagram créé par l’équipe pour Rock en Seine.": "Another Instagram post design made by the team for Rock en Seine.",
+          "Forme abstraite noire et blanche créée en solo comme ressource d’affiche.": "Black and white abstract shape I made on my own as a poster asset.",
+          "Affiche proposée en solo pour le projet Rock en Seine.": "Poster I proposed on my own for the Rock en Seine project.",
+          "Voie lactée au-dessus d’un toit sombre, sous un ciel orangé.": "The Milky Way above a dark roof, under an orange sky.",
+          "Voie lactée lumineuse qui traverse verticalement un ciel nocturne.": "A bright Milky Way crossing a night sky vertically.",
+          "Ciel étoilé orangé traversé par la silhouette d’un poteau et de fils électriques.": "Orange starry sky crossed by the silhouette of a pole and power lines.",
+          "Champ éclairé et arbres sous un ciel nocturne traversé par des fils électriques.": "Lit field and trees under a night sky crossed by power lines.",
+          "Champ et arbres sous un ciel étoilé, vus derrière une clôture.": "Field and trees under a starry sky, seen behind a fence.",
+          "Silhouette d’un pin sous un ciel étoilé traversé par des câbles aériens.": "Silhouette of a pine tree under a starry sky crossed by overhead cables.",
+          "Champ orangé et arbres sous un ciel nocturne avec des fils électriques.": "Orange field and trees under a night sky with power lines.",
+          "Fontaine dans un parc, en silhouette sous un ciel nuageux de fin de journée.": "A fountain in a park, silhouetted against a cloudy evening sky.",
+          "Prairie verte parsemée de fleurs, bordée d’une clôture, sous un ciel voilé.": "A green meadow dotted with flowers, edged by a fence, under a hazy sky.",
+          "Dessin au crayon : une fleur de lotus dans un cercle, entourée de pétales et d’une carpe koï.":
+            "Pencil drawing: a lotus flower in a circle, surrounded by petals and a koi carp.",
+          "Dessin au crayon : un mandala géométrique étoilé, surmonté de deux comètes.": "Pencil drawing: a star-shaped geometric mandala topped by two comets.",
+          "Dessin au crayon : un bandeau torsadé orné d’une étoile, au-dessus de lignes en écriture inventée.":
+            "Pencil drawing: a twisted ribbon with a star, above lines of invented script.",
+          "Dessin au crayon : un heaume de chevalier marqué d’une croix.": "Pencil drawing: a knight’s helmet marked with a cross.",
+          "Dessin au crayon : étude de plis et d’ombres sur un drapé.": "Pencil drawing: a study of folds and shadows on draped fabric.",
+        };
+        var norm = function (text) {
+          return text.replace(/\s+/g, " ").trim();
+        };
+        // Traduction d'un texte : utilisée aussi par les scripts du site pour leurs messages.
+        window.tr = function (text) {
+          return lang === "en" && Object.prototype.hasOwnProperty.call(EN, text) ? EN[text] : text;
+        };
+
+        if (lang === "en") {
+          document.title = "Hakim Elkhia — Portfolio: graphic design, photography, web";
+          var description = document.querySelector('meta[name="description"]');
+          if (description) {
+            description.content =
+              "Portfolio of Hakim Elkhia, multimedia student (MMI): visual communication, graphic design, photography and web design. Projects, skills and contact.";
+          }
+          var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+          var node;
+          while ((node = walker.nextNode())) {
+            if (node.parentNode.closest("script, style, [translate='no']")) continue;
+            var parts = node.data.match(/^(\s*)([\s\S]*?)(\s*)$/);
+            var key = norm(parts[2]);
+            if (key && Object.prototype.hasOwnProperty.call(EN, key)) {
+              node.data = parts[1] + EN[key] + parts[3];
+            }
+          }
+          ["aria-label", "alt", "title", "data-name"].forEach(function (attribute) {
+            document.querySelectorAll("[" + attribute + "]").forEach(function (element) {
+              var value = norm(element.getAttribute(attribute));
+              if (Object.prototype.hasOwnProperty.call(EN, value)) element.setAttribute(attribute, EN[value]);
+            });
+          });
+        }
+
+        // Bouton FR / EN : il propose l'autre langue et retient le choix.
+        var button = document.querySelector(".lang-toggle");
+        if (button) {
+          var other = lang === "en" ? "fr" : "en";
+          button.textContent = other.toUpperCase();
+          button.lang = other;
+          button.setAttribute("aria-label", other === "en" ? "View the site in English" : "Voir le site en français");
+          button.addEventListener("click", function () {
+            try {
+              localStorage.setItem("portfolio-lang", other);
+            } catch (error) {}
+            var url = new URL(location.href);
+            url.searchParams.delete("lang");
+            location.href = url.href;
+          });
+        }
+      })();
+    </script>
   </body>
 </html>

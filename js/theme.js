@@ -18,7 +18,7 @@ if (themeToggle) {
 
     root.dataset.theme = theme;
     // Le libellé visible annonce l'action : pas besoin d'un état « pressé » en plus.
-    themeToggle.textContent = isLight ? "Mode sombre" : "Mode clair";
+    themeToggle.textContent = (window.tr || String)(isLight ? "Mode sombre" : "Mode clair");
     themeColor?.setAttribute("content", INK[theme]);
   }
 

@@ -1,5 +1,6 @@
 // Gère l'ouverture des projets et les galeries déclarées dans le HTML.
 (() => {
+  const tr = window.tr || ((text) => text);
   const cards = Array.from(document.querySelectorAll(".project"));
   const backdrop = document.querySelector(".projects__backdrop");
   const photoLightbox = document.querySelector(".photo-lightbox");
@@ -38,7 +39,7 @@
     const caption =
       zoomedImage.closest(".project__photo")?.querySelector("figcaption")?.textContent.trim() ||
       zoomedImage.alt ||
-      "Photo du projet";
+      tr("Photo du projet");
     lightboxTitle.textContent =
       `${caption} · ${zoomedImageIndex + 1} / ${lightboxImages.length}`;
   }
@@ -131,9 +132,9 @@
       controls = document.createElement("div");
       controls.className = "project__gallery-controls";
       controls.innerHTML = `
-        <button class="project__gallery-navigation" type="button" aria-label="Photo précédente">←</button>
+        <button class="project__gallery-navigation" type="button" aria-label="${tr("Photo précédente")}">←</button>
         <span class="project__gallery-position" aria-live="polite"></span>
-        <button class="project__gallery-navigation" type="button" aria-label="Photo suivante">→</button>
+        <button class="project__gallery-navigation" type="button" aria-label="${tr("Photo suivante")}">→</button>
       `;
       gallery.append(controls);
       controls.querySelectorAll("button")[0].addEventListener("click", () => {
@@ -208,11 +209,13 @@
       }
 
       const image = figure.querySelector("img");
+      const english = document.documentElement.lang === "en";
+      const step = Math.abs(visibleFigure?.offset || 0);
       const label = visibleFigure?.offset
-        ? `Afficher la photo ${Math.abs(visibleFigure.offset)} ${
-            visibleFigure.offset < 0 ? "précédente" : "suivante"
-          }`
-        : `Agrandir : ${image.alt}`;
+        ? english
+          ? `Show the ${visibleFigure.offset < 0 ? "previous" : "next"} photo (${step})`
+          : `Afficher la photo ${step} ${visibleFigure.offset < 0 ? "précédente" : "suivante"}`
+        : `${english ? "Enlarge:" : "Agrandir :"} ${image.alt}`;
       image.setAttribute("aria-label", `${label} — ${image.alt}`);
     });
     position.textContent = `${nextIndex + 1} / ${figures.length}`;
