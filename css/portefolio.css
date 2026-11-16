@@ -2022,6 +2022,18 @@ body.page--project-open {
 }
 
 /* --- Intro d'ouverture (uniquement si JavaScript est actif) --- */
+/* La scène (l'ange, dessiné par site.js) passe au premier plan pendant le chargement, puis
+   reste en fond de l'accueil, derrière les fils et le contenu. */
+.scene {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
 .loader {
   display: none;
 }
@@ -2033,36 +2045,35 @@ html.js-loading .loader {
   position: fixed;
   inset: 0;
   z-index: 200;
-  display: grid;
-  place-content: center;
-  justify-items: center;
-  gap: 20px;
+  display: block;
   background: var(--bg);
-  transition: opacity 0.7s ease 0.35s;
 }
 
-.loader__count,
-.loader__label {
-  margin: 0;
-  color: var(--muted);
-  font-family: var(--mono);
-  font-size: 0.74rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  transition: opacity 0.3s ease;
+html.js-loading .scene {
+  z-index: 201;
 }
 
-.loader__count {
-  color: var(--accent);
-  font-size: 1.1rem;
+/* Dernier éclair : un voile lumineux couvre tout l'écran, puis se retire sur l'accueil. */
+.loader.is-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: block;
+  pointer-events: none;
+  animation: loader-flash 0.9s cubic-bezier(0.2, 0.6, 0.3, 1) forwards;
 }
-.loader.is-done {
-  opacity: 0;
+
+@keyframes loader-flash {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
-/* Passage à l'accueil : le serpent quitte la barre (il est redessiné sur la page, au même
-   endroit, par site.js), le reste de l'écran de chargement s'efface en fondu. */
-/* Pendant le chargement et l'enroulement du serpent, la barre du haut et le rail restent
-   cachés : ils apparaissent avec le reste de l'accueil. */
+
+/* Pendant le chargement, la barre du haut et le rail restent cachés : ils apparaissent avec
+   le reste de l'accueil. */
 html.js-loading .topbar,
 html.js-loading .rail {
   opacity: 0;
@@ -2071,38 +2082,6 @@ html.js-loading .rail {
 /* Les lettres du titre attendent sous leur ligne : on les masque tant que l'intro joue. */
 html.js-loading .hero__title {
   visibility: hidden;
-}
-
-html.js-loading .loader.is-handoff {
-  background: transparent;
-  pointer-events: none;
-}
-.loader.is-handoff .loader__svg,
-.loader.is-handoff .loader__count,
-.loader.is-handoff .loader__label {
-  opacity: 0;
-  transition: opacity 0.6s ease;
-}
-.loader.is-handoff .loader__serpent {
-  opacity: 0;
-  transition: none;
-}
-.loader.is-done .loader__svg {
-  transform: scale(24);
-  opacity: 0;
-}
-/* Barre de chargement : le serpent glisse dessus (dessiné par site.js). */
-.loader__serpent {
-  display: block;
-  width: min(440px, 78vw);
-  height: 60px;
-  transition: opacity 0.3s ease;
-}
-
-.loader.is-done .loader__serpent,
-.loader.is-done .loader__count,
-.loader.is-done .loader__label {
-  opacity: 0;
 }
 
 /* --- Écrans étroits : plus de pin horizontal, projets en colonne --- */
@@ -2488,38 +2467,6 @@ body.page--project-open::before {
   clip-path: none;
 }
 
-/* Intro : deux anneaux autour du monogramme */
-.loader__svg {
-  width: clamp(200px, 30vw, 320px);
-  overflow: visible;
-  transition:
-    transform 1.2s cubic-bezier(0.7, 0, 0.2, 1),
-    opacity 0.8s ease 0.25s;
-}
-
-.loader__ring {
-  fill: none;
-  stroke: var(--accent);
-  stroke-width: 1;
-  /* --len : périmètre du cercle (2πr), posé sur chaque anneau dans le HTML. */
-  stroke-dasharray: var(--len);
-  stroke-dashoffset: calc(
-    var(--len) * (1 - clamp(0, var(--lp, 0) * 1.5 - var(--i) * 0.18, 1))
-  );
-  transform: rotate(-90deg);
-  transform-box: fill-box;
-  transform-origin: center;
-}
-
-.loader__mono {
-  fill: var(--accent);
-  font-family: var(--display);
-  font-size: 66px;
-  font-style: italic;
-  font-weight: 500;
-  opacity: clamp(0, (var(--lp, 0) - 0.3) * 2, 1);
-}
-
 /* Repère de défilement : cercle fin et flèche */
 .scroll-cue__icon {
   width: 54px;
@@ -2541,12 +2488,6 @@ body.page--project-open::before {
   border-radius: 50%;
   background: transparent;
   clip-path: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .loader__ring {
-    stroke-dashoffset: 0;
-  }
 }
 
 /* ==========================================================================
@@ -2763,5 +2704,53 @@ html:not(.js) .scroll-cue {
   .contact__link::before,
   .project__mark {
     transition: none;
+  }
+}
+
+/* ==========================================================================
+   Immersion : halo qui suit la souris sur les cartes (positions fournies par site.js).
+   ========================================================================== */
+.project:not(.project--expanded)::after,
+.skill-card::after {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle at var(--mx, 50%) var(--my, 50%),
+    color-mix(in srgb, var(--accent) 22%, transparent),
+    transparent 45%
+  );
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+
+.skill-card::after {
+  background: radial-gradient(
+    circle at var(--mx, 50%) var(--my, 50%),
+    color-mix(in srgb, var(--accent) 12%, transparent),
+    transparent 40%
+  );
+}
+
+.project:not(.project--expanded):hover::after,
+.skill-card:hover::after {
+  opacity: 1;
+}
+
+.contact__link {
+  background-image: radial-gradient(
+    circle at var(--mx, 50%) var(--my, 50%),
+    color-mix(in srgb, var(--accent) 16%, transparent),
+    transparent 60%
+  );
+}
+
+@media (prefers-reduced-motion: reduce), (hover: none) {
+  .project:not(.project--expanded)::after,
+  .skill-card::after {
+    display: none;
   }
 }

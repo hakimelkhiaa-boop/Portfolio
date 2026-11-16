@@ -50,7 +50,8 @@
             root.dataset.theme = "light";
           }
           if (
-            !sessionStorage.getItem("hakim-intro") &&
+            // ?intro dans l'adresse : rejoue l'ouverture (pratique pour la tester).
+            (!sessionStorage.getItem("hakim-intro") || location.search.includes("intro")) &&
             !matchMedia("(prefers-reduced-motion: reduce)").matches
           ) {
             root.classList.add("js-loading");
@@ -58,12 +59,14 @@
         } catch (error) {}
       })();
     </script>
-    <link rel="stylesheet" href="css/portefolio.css" />
-    <script defer src="js/projects.js"></script>
-    <script defer src="js/theme.js"></script>
-    <script defer src="js/site.js"></script>
-    <script defer src="js/pluie-or.js"></script>
-    <script defer src="js/lampe-torche.js"></script>
+    <!-- ?v=2 : à augmenter après chaque modification, pour que le navigateur ne garde pas
+         l'ancienne version en mémoire. -->
+    <link rel="stylesheet" href="css/portefolio.css?v=2" />
+    <script defer src="js/projects.js?v=2"></script>
+    <script defer src="js/theme.js?v=2"></script>
+    <script defer src="js/site.js?v=2"></script>
+    <script defer src="js/pluie-or.js?v=2"></script>
+    <script defer src="js/lampe-torche.js?v=2"></script>
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -82,31 +85,13 @@
   <body>
     <a class="skip-link" href="#contenu">Aller au contenu</a>
 
-    <!-- Intro d'ouverture : une alvéole se dessine, puis on zoome dedans. -->
-    <div class="loader" aria-hidden="true">
-      <svg class="loader__svg" viewBox="0 0 200 200">
-        <circle
-          class="loader__ring"
-          style="--i: 0; --len: 515.3"
-          cx="100"
-          cy="100"
-          r="82"
-        />
-        <circle
-          class="loader__ring"
-          style="--i: 1; --len: 427.3"
-          cx="100"
-          cy="100"
-          r="68"
-        />
-        <text class="loader__mono" x="100" y="118" text-anchor="middle">
-          HE
-        </text>
-      </svg>
-      <canvas class="loader__serpent"></canvas>
-      <p class="loader__count">000</p>
-      <p class="loader__label">Hakim Elkhia · Portfolio</p>
+    <!-- Intro d'ouverture : l'ange se dessine, l'éclair frappe, puis l'accueil apparaît. -->
+    <div class="loader">
+      <p class="sr-only" role="status">Chargement du portfolio…</p>
     </div>
+    <!-- Scène d'ouverture (dessinée par site.js) : plein écran pendant le chargement,
+         puis en fond de l'accueil. data-name : le texte qui s'écrit sous l'ange. -->
+    <canvas class="scene" data-name="Mon portfolio" aria-hidden="true"></canvas>
 
     <!-- Fond animé : la ruche (dessinée par site.js) et un léger grain. -->
     <canvas id="hive" aria-hidden="true"></canvas>
